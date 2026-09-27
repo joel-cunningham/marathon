@@ -1,0 +1,21 @@
+{
+  "name": "marathon-infra",
+  "private": true,
+  "scripts": {
+    "build": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts",
+    "synth": "cdk synth",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-ssm": "^3.1141.0",
+    "@types/aws-lambda": "^8.10.163",
+    "@types/node": "^20.19.43",
+    "aws-cdk": "^2.1143.0",
+    "aws-cdk-lib": "^2.271.0",
+    "constructs": "^10.8.1",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

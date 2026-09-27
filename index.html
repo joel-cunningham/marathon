@@ -63,6 +63,7 @@ button{font:inherit;color:inherit}
 .sync[data-state="loading"] .dot{background:var(--today)}
 .btn{border:1px solid var(--ink);background:transparent;border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:600;white-space:nowrap}
 .btn:hover{background:var(--ink);color:var(--paper)}
+a.btn{color:inherit;text-decoration:none}
 .btn[hidden]{display:none}
 
 /* Pace band */
@@ -130,6 +131,7 @@ button{font:inherit;color:inherit}
   <div class="sync" id="sync" data-state="idle" aria-live="polite">
     <p><span class="dot"></span><span id="syncText">Plan only</span></p>
     <button class="btn" id="syncBtn" hidden>Refresh</button>
+    <a class="btn" id="connectBtn" href="/api/auth/start" hidden>Connect Strava</a>
   </div>
 
   <section class="band" aria-labelledby="bandTitle">
@@ -286,63 +288,63 @@ button{font:inherit;color:inherit}
 
   function renderAll(){renderRamp();renderWeeks();}
 
-  // Strava
-  var syncEl=document.getElementById("sync"),syncText=document.getElementById("syncText"),syncBtn=document.getElementById("syncBtn");
-  function setSync(state,text,showBtn){syncEl.dataset.state=state;syncText.textContent=text;syncBtn.hidden=!showBtn;}
-  var mcp=null;
-  var INPUT={first:100,range_start:PLAN[0].start+"T00:00:00",range_end:addDays(PLAN[PLAN.length-1].start,6)+"T23:59:59",ordering:"StartDateLocalAsc"};
+  // Strava, through this site's own API (infra/lambda/handler.ts)
+  var syncEl=document.getElementById("sync"),syncText=document.getElementById("syncText"),syncBtn=document.getElementById("syncBtn"),connectBtn=document.getElementById("connectBtn");
+  function setSync(state,text,showBtn,showConnect){syncEl.dataset.state=state;syncText.textContent=text;syncBtn.hidden=!showBtn;connectBtn.hidden=!showConnect;}
+  // Local midnight at the start of the first Monday to local midnight after the last Sunday, sent as UTC instants.
+  function localMidnight(iso){var p=iso.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toISOString();}
+  var RANGE="after="+encodeURIComponent(localMidnight(PLAN[0].start))+"&before="+encodeURIComponent(localMidnight(addDays(PLAN[PLAN.length-1].start,7)));
+  var PLAN_ONLY="Plan only. Strava sync isn't available here.";
 
-  function ingest(res){
-    var p=res&&res.payload;
-    if(typeof p==="string"){try{p=JSON.parse(p);}catch(e){p=null;}}
-    var list=(p&&p.activities)||[];
+  function ingest(body){
+    var list=(body&&body.activities)||[];
     byDate={};
     list.forEach(function(a){var d=(a.start_local||"").slice(0,10);if(!d)return;(byDate[d]=byDate[d]||[]).push(a);});
     hasData=true;
-    var t=res.cache&&res.cache.storedAt?new Date(res.cache.storedAt):new Date();
-    setSync("ok","Strava synced at "+t.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+(list.length?", "+list.length+" activities":", no activities in the lead-up yet"),true);
+    var t=body.fetched_at?new Date(body.fetched_at):new Date();
+    setSync("ok","Strava synced at "+t.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+(list.length?", "+list.length+" activities":", no activities in the lead-up yet"),true,false);
     renderAll();
   }
 
   function explain(err){
     var c=err&&err.code;
-    if(c==="needs_reauth")return "Strava needs reconnecting. Reconnect it in claude.ai Settings, Connectors.";
-    if(c==="server_not_connected"||c==="server_not_found")return "Strava isn't connected. Add it in claude.ai Settings, Connectors.";
-    if(c==="selection_required")return "Choose which Strava connection to use when prompted, then refresh.";
-    if(c==="not_in_manifest"||c==="not_granted"||c==="consent_required")return "Strava access isn't allowed for this page. Showing the plan only.";
-    if(c==="blocked_by_policy"||c==="approval_required")return "Your organisation's policy blocks Strava here. Showing the plan only.";
-    if(c==="capability_disabled"||c==="capability_removed")return "Strava can't be reached from this view. Showing the plan only.";
-    if(c==="tool_error")return "Strava returned an error: "+(err.message||"no details")+".";
-    if(c==="server_unavailable")return "Strava didn't respond. Try refreshing in a minute.";
+    if(c==="rate_limited")return "Strava's rate limit was hit. Try again in 15 minutes.";
+    if(c==="not_configured")return "The server isn't set up for Strava yet. Showing the plan only.";
+    if(c==="strava_error")return "Strava returned an error"+(err.message?": "+err.message:".");
+    if(c==="network")return "Couldn't reach the server. Check your connection and refresh.";
     return "Couldn't load Strava"+(err&&err.message?": "+err.message:"")+".";
   }
-  function retractFor(c){return c==="needs_reauth"||c==="server_not_connected"||c==="blocked_by_policy"||c==="approval_required"||c==="not_in_manifest";}
 
   function load(fresh,retried){
-    if(!mcp)return;
-    setSync("loading","Loading Strava…",false);
-    mcp.callTool("Strava","list_activities",INPUT,fresh?{cache:{refresh:true,gcTime:3600000}}:{cache:{staleTime:60000,gcTime:3600000}})
-      .then(ingest)
+    setSync("loading","Loading Strava…",false,false);
+    fetch("/api/activities?"+RANGE,{credentials:"same-origin",cache:fresh?"no-cache":"default",headers:{accept:"application/json"}})
+      .then(function(r){
+        var type=r.headers.get("content-type")||"";
+        return (type.indexOf("application/json")===0?r.json():Promise.resolve(null)).then(function(body){return {status:r.status,body:body};});
+      },function(){throw {code:"network"};})
+      .then(function(r){
+        if(r.status===200&&r.body)return ingest(r.body);
+        if(r.status===401){
+          byDate={};hasData=false;renderAll();
+          setSync("idle","Plan only. Connect Strava to see your runs against it.",false,true);
+          return;
+        }
+        // No API behind this copy of the page (opened as a file, or hosted elsewhere).
+        if(!r.body||r.status===404){setSync("idle",PLAN_ONLY,false,false);return;}
+        throw {status:r.status,code:r.body.error,message:r.body.message};
+      })
       .catch(function(err){
-        if(err&&err.retryable&&!retried){var wait=err.retryAfterMs||(1200+Math.random()*1800);setTimeout(function(){load(fresh,true);},wait);return;}
-        if(err&&retractFor(err.code)){byDate={};hasData=false;renderAll();}
-        var terminal=err&&(err.code==="not_granted"||err.code==="capability_disabled"||err.code==="capability_removed"||err.code==="blocked_by_policy");
-        setSync("error",explain(err),!terminal);
+        if(err&&err.status>=502&&err.code!=="rate_limited"&&!retried){setTimeout(function(){load(fresh,true);},1200+Math.random()*1800);return;}
+        var terminal=err&&err.code==="not_configured";
+        setSync("error",explain(err),!terminal,false);
       });
   }
   syncBtn.addEventListener("click",function(){load(true);});
 
   renderStrip();renderAll();
 
-  if(window.claude&&typeof window.claude.use==="function"){
-    setSync("loading","Connecting to Strava…",false);
-    window.claude.use("mcp").then(function(ns){
-      if(!ns){setSync("idle","Plan only. Strava sync works when this page is opened in Claude.",false);return;}
-      mcp=ns;load(false);
-    }).catch(function(){setSync("idle","Plan only. Strava sync works when this page is opened in Claude.",false);});
-  }else{
-    setSync("idle","Plan only. Strava sync works when this page is opened in Claude.",false);
-  }
+  if(location.protocol==="http:"||location.protocol==="https:")load(false);
+  else setSync("idle",PLAN_ONLY,false,false);
 })();
 </script>
 </body>
