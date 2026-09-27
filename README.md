@@ -15,7 +15,7 @@ browser ──HTTPS──▶ CloudFront ─┬─ /*      ──OAC──▶ S3 
 | --- | --- |
 | `index.html` | The page. It calls `GET /api/activities`. On a 401 it shows **Connect Strava**. |
 | `infra/lib/marathon-stack.ts` | CDK stack: S3, CloudFront, Lambda and the `public_url` parameter. |
-| `infra/lambda/handler.ts` | API routes (`/api/auth/start`, `/api/auth/callback`, `/api/activities`). |
+| `infra/lambda/handler.ts` | API routes (`/api/auth/start`, `/api/auth/callback`, `/api/activities`), on Node.js 24. |
 | `infra/test/handler.test.ts` | Handler tests with SSM and Strava mocked. Run them with `cd infra && npm test`. |
 | `deploy.sh` | Deploys everything: sets secrets, runs `cdk deploy`, uploads the page and invalidates CloudFront. |
 
@@ -132,7 +132,3 @@ aws ssm delete-parameters --region ap-southeast-2 --names \
 ```
 
 Then delete the app at <https://www.strava.com/settings/api>.
-
-## Note on the Lambda runtime
-
-The function uses Node.js 20, which AWS deprecated on 30 Apr 2026. Functions can still be created until 1 Feb 2027 and updated until 3 Mar 2027. To switch runtimes, change `NODEJS_20_X` in `infra/lib/marathon-stack.ts` to `NODEJS_24_X`. The handler only uses `fetch`, `node:crypto` and the SDK bundled with the runtime, so it runs unchanged on the newer version.

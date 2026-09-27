@@ -32,7 +32,7 @@ export class MarathonStack extends cdk.Stack {
     const api = new nodejs.NodejsFunction(this, "Api", {
       entry: path.join(__dirname, "../lambda/handler.ts"),
       handler: "handler",
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       timeout: cdk.Duration.seconds(20),
