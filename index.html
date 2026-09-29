@@ -6,187 +6,354 @@
 <title>Tokyo lead-up</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+Antique:wght@700&text=%E6%9D%B1%E4%BA%AC%E3%83%9E%E3%83%A9%E3%82%BD%E3%83%B3&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#F3F5F8; --surface:#FFFFFF; --ink:#1B2447; --muted:#5B6480; --line:#D5DAE3;
-  --hit:#1F7A4D; --warn:#A8651A; --miss:#B42318; --today:#F2B705; --todayInk:#1B2447;
-  --z1:#C9D5EA; --z2:#98AFD6; --z3:#6B87BE; --z4:#3E5A9A; --z5:#1B2447;
-  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --paper:#F5F5F5; --surface:#FFFFFF; --ink:#111111; --muted:#5C5C5C; --line:#E3E3E3; --line2:#EDEDED; --soft:#F0F0F0;
+  --hit:#0A7B45; --warn:#9A5B00; --miss:#C8102E; --blend:multiply;
+  --z-rec:#8FC31F; --z-ga:#009FE8; --z-long:#EE7F2D; --z-mp:#00A29A; --z-lt:#E4007F; --z-str:#F8C700;
+  --display:"Josefin Sans","Futura","Century Gothic",sans-serif;
+  --num:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --ja:"Zen Kaku Gothic Antique","Hiragino Sans","Yu Gothic",sans-serif;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --paper:#0F1428; --surface:#161C36; --ink:#E8ECF5; --muted:#9AA3BD; --line:#2A3252;
-    --hit:#4CC38A; --warn:#E0A33A; --miss:#F0736A; --today:#F2B705; --todayInk:#0F1428;
-    --z1:#2A3A66; --z2:#3A5290; --z3:#5A77B8; --z4:#8FA7D8; --z5:#D6E0F4;
+    --paper:#0E0E10; --surface:#18181B; --ink:#F2F2F2; --muted:#A3A3A3; --line:#2A2A2E; --line2:#232326; --soft:#202024;
+    --hit:#3DD68C; --warn:#F0B24A; --miss:#FF6B7A; --blend:screen;
   }
 }
 :root[data-theme="dark"]{
-  --paper:#0F1428; --surface:#161C36; --ink:#E8ECF5; --muted:#9AA3BD; --line:#2A3252;
-  --hit:#4CC38A; --warn:#E0A33A; --miss:#F0736A; --today:#F2B705; --todayInk:#0F1428;
-  --z1:#2A3A66; --z2:#3A5290; --z3:#5A77B8; --z4:#8FA7D8; --z5:#D6E0F4;
+  --paper:#0E0E10; --surface:#18181B; --ink:#F2F2F2; --muted:#A3A3A3; --line:#2A2A2E; --line2:#232326; --soft:#202024;
+  --hit:#3DD68C; --warn:#F0B24A; --miss:#FF6B7A; --blend:screen;
 }
 *,*::before,*::after{box-sizing:inherit}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+[hidden]{display:none!important}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.5 var(--body);-webkit-font-smoothing:antialiased}
-main{max-width:760px;margin:0 auto;padding:28px 18px 64px}
-h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.05;margin:0}
-h1{font-size:clamp(44px,11vw,76px);letter-spacing:-.01em}
-.lede{color:var(--muted);margin:8px 0 0;max-width:56ch}
+main{max-width:1280px;margin:0 auto;padding:0 16px 48px}
+h2{font:700 22px/1.1 var(--display);text-transform:uppercase;margin:0;padding-top:3px}
+p{margin:0}
 button{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--today);outline-offset:2px;border-radius:4px}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--z-ga);outline-offset:2px;border-radius:4px}
+.muted{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.sub{font-size:14px;color:var(--muted)}
 
-/* Ramp */
-.ramp{margin:28px 0 8px}
-.ramp svg{width:100%;height:auto;display:block;overflow:visible}
-.ramp .bar-plan{fill:none;stroke:var(--ink);stroke-width:1.5}
-.ramp .bar-act{fill:var(--ink)}
-.ramp .bar-act.over{fill:var(--hit)}
-.ramp text{font-family:var(--display);fill:var(--ink)}
-.ramp .lbl{font-size:15px;fill:var(--muted);font-weight:500}
-.ramp .km{font-size:22px;font-weight:600}
-.ramp .now{fill:var(--today)}
-.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.sw{width:14px;height:14px;display:inline-block}
-.sw.plan{border:1.5px solid var(--ink)} .sw.act{background:var(--ink)}
-
-/* Sync */
-.sync{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 0 0;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;font-size:15px}
-.sync p{margin:0}
-.sync .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--muted);margin-right:8px;vertical-align:middle}
-.sync[data-state="ok"] .dot{background:var(--hit)}
-.sync[data-state="error"] .dot{background:var(--miss)}
-.sync[data-state="loading"] .dot{background:var(--today)}
-.btn{border:1px solid var(--ink);background:transparent;border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:600;white-space:nowrap}
-.btn:hover{background:var(--ink);color:var(--paper)}
-a.btn{color:inherit;text-decoration:none}
+/* Header */
+header{padding-top:18px;display:flex;flex-direction:column;gap:18px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+.brand{font:700 18px var(--display);letter-spacing:.04em;text-transform:uppercase;padding-top:3px}
+.sync{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--muted);margin-right:8px;vertical-align:1px}
+#syncLine[data-state="ok"] .dot{background:var(--hit)}
+#syncLine[data-state="error"] .dot{background:var(--miss)}
+#syncLine[data-state="loading"] .dot{background:var(--z-str)}
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:600;font-size:14px;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--ink)}
 .btn[hidden]{display:none}
+.hero{display:flex;align-items:center;gap:18px}
+.emblem{flex-shrink:0;width:148px;height:148px;border-radius:50%;display:block}
+.emblem line{mix-blend-mode:var(--blend)}
+.count{display:flex;flex-direction:column;gap:4px;min-width:0}
+.days{display:flex;align-items:baseline;gap:6px}
+.days b{font:700 72px/.8 var(--num)}
+.days span{font:700 14px var(--display);text-transform:uppercase}
+.ja{font:700 20px/1.2 var(--ja);padding-top:6px}
+.date{font-weight:600;font-size:15px}
+.caption{font-size:12px;color:var(--muted);max-width:44ch}
+#syncLine{font-size:13px}
 
-/* Pace band */
-.band{margin:36px 0 0}
-.band h2{font-size:28px}
-.band p{color:var(--muted);margin:4px 0 14px;font-size:15px}
-.strip{display:grid;grid-template-columns:repeat(6,1fr);border-radius:8px;overflow:hidden;border:1px solid var(--line)}
-.strip div{padding:10px 8px 9px;min-width:0}
-.strip b{display:block;font-family:var(--display);font-size:22px;font-weight:600;line-height:1}
-.strip small{display:block;font-size:13px;margin-top:4px;opacity:.85}
-.z-rec{background:var(--z1)} .z-ga{background:var(--z2)} .z-long{background:var(--z3);color:#fff}
-.z-mp{background:var(--z4);color:#fff} .z-lt{background:var(--z5);color:var(--paper)} .z-str{background:var(--ink);color:var(--paper)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .z-rec,:root:not([data-theme="light"]) .z-ga{color:#fff} :root:not([data-theme="light"]) .z-mp,:root:not([data-theme="light"]) .z-lt{color:#0F1428}}
-:root[data-theme="dark"] .z-rec,:root[data-theme="dark"] .z-ga{color:#fff}
-:root[data-theme="dark"] .z-mp,:root[data-theme="dark"] .z-lt{color:#0F1428}
-@media (max-width:560px){.strip{grid-template-columns:repeat(3,1fr)}}
+/* Layout: one column on phones, two from 960px */
+.cols{display:flex;flex-direction:column;gap:24px;margin-top:24px}
+.left,.right{display:contents}
+.o1{order:1}.o2{order:2}.o3{order:3}.o4{order:4}.o5{order:5}.o6{order:6}.o7{order:7}
+@media (min-width:960px){
+  main{padding:0 64px 64px}
+  header{padding-top:32px;gap:24px}
+  .brand{font-size:20px}
+  .emblem{width:232px;height:232px}
+  .hero{gap:40px}
+  .days b{font-size:128px}
+  .days span{font-size:20px}
+  .ja{font-size:34px;padding-top:8px}
+  .date{font-size:20px}
+  .hero .sub{font-size:16px}
+  .caption{margin-left:auto;align-self:flex-end;max-width:300px;font-size:13px}
+  .cols{display:grid;grid-template-columns:400px minmax(0,1fr);gap:40px;align-items:start;margin-top:36px}
+  .left,.right{display:flex;flex-direction:column;gap:28px;min-width:0}
+}
+@media (max-width:959px){.hero{flex-wrap:wrap}.caption{flex-basis:100%}}
 
-/* Weeks */
-.weeks{margin-top:40px;display:grid;gap:14px}
-.week{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.week.current{border-color:var(--ink);border-width:2px}
-.whead{width:100%;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;padding:14px 16px;background:none;border:0;cursor:pointer;text-align:left}
-.whead h3{font-size:26px}
-.whead .sub{color:var(--muted);font-size:14px;display:block;font-family:var(--body);font-weight:500;margin-top:2px}
-.wkm{font-family:var(--display);font-size:24px;font-weight:600;text-align:right;line-height:1}
-.wkm small{display:block;font-family:var(--body);font-size:12px;color:var(--muted);font-weight:500;margin-top:3px}
-.chev{width:22px;height:22px;transition:transform .2s}
-.whead[aria-expanded="true"] .chev{transform:rotate(180deg)}
-.days{border-top:1px solid var(--line)}
-.days[hidden]{display:none}
-.day{display:grid;grid-template-columns:62px 1fr auto;gap:12px;padding:12px 16px;border-top:1px solid var(--line);align-items:start}
-.day:first-child{border-top:0}
-.day.is-today{background:color-mix(in srgb,var(--today) 16%,transparent)}
-.dname{font-family:var(--display);font-weight:600;font-size:19px;line-height:1.1}
-.dname small{display:block;font-family:var(--body);font-weight:500;font-size:13px;color:var(--muted)}
-.sess{min-width:0}
-.sess .t{font-weight:600}
-.sess .tgt{font-size:14px;color:var(--muted)}
-.sess .act{font-size:14px;margin-top:4px}
-.sess .act a{color:inherit}
-.sess .why{font-size:13px;color:var(--muted)}
-.zchip{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:1px}
-.day.rest .t{color:var(--muted);font-weight:500}
-.st{font-size:13px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
-.st.hit{color:var(--hit)} .st.part{color:var(--warn)} .st.miss{color:var(--miss)}
-.st.plan{color:var(--muted);border-color:var(--line)} .st.today{background:var(--today);color:var(--todayInk);border-color:var(--today)}
-.st.extra{color:var(--ink)}
-.after{margin:40px 0 0;color:var(--muted);font-size:15px;border-top:1px solid var(--line);padding-top:16px}
-@media (max-width:480px){.day{grid-template-columns:50px 1fr;}.day .st{grid-column:2;justify-self:start}}
-@media (prefers-reduced-motion: reduce){.chev{transition:none}}
+/* Today */
+.today{border:2px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--surface)}
+.today .in{display:flex;flex-direction:column;gap:10px;padding:16px 16px 14px}
+.today .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tag{font:700 13px var(--display);letter-spacing:.06em;text-transform:uppercase;padding:5px 8px 3px;border-radius:4px;background:var(--ink);color:var(--paper)}
+.today h3{margin:0;font:700 44px/.95 var(--num)}
+.today .note{font-size:16px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding-top:4px}
+.chip{display:inline-flex;align-items:baseline;gap:8px;padding:6px 12px;border-radius:8px;font:600 20px var(--num)}
+.chip small{font:500 12px var(--body)}
+.more{display:flex;flex-direction:column;gap:6px;padding:14px 16px;background:var(--soft);border-top:1px solid var(--line)}
+.more .mh{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.lbl{font:700 12px var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.more .mt{font:700 26px/1 var(--num)}
+.more .mv{font-size:15px}
+.more .chips{padding-top:2px}
+.more .chip{font-size:17px;padding:4px 10px}
+.sv{font-size:13px;color:var(--muted)}
+.sv a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.sv a:hover{color:var(--ink);text-decoration-color:currentColor}
+@media (min-width:960px){.today .in{padding:22px 22px 18px;gap:12px}.today h3{font-size:52px}.more{padding:16px 22px}}
+
+/* Build chart */
+.build{padding:18px 16px 16px;display:flex;flex-direction:column;gap:16px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stat{display:flex;flex-direction:column;padding:10px 12px;border-radius:10px;background:var(--paper)}
+.stat b{font:700 30px/1 var(--num)}
+.stat span{font-size:12px;color:var(--muted)}
+.wks{display:flex;flex-direction:column;gap:6px}
+.wk{display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px}
+.wk.cur{background:var(--paper)}
+.wk .lab{width:62px;flex-shrink:0;display:flex;flex-direction:column;gap:2px}
+.wk .lab b{font:700 22px/1 var(--num)}
+.wk .lab span{font-size:12px;color:var(--muted)}
+.now{align-self:flex-start;font:700 10px var(--display);letter-spacing:.08em;padding:3px 6px 1px;border-radius:3px;background:var(--ink);color:var(--paper)}
+.lines{flex:1;min-width:0;position:relative;display:flex;flex-direction:column;gap:4px}
+.gl{position:absolute;top:-6px;bottom:-6px;width:1px;background:var(--line)}
+.ln{position:relative;display:flex;flex-direction:column;gap:2px}
+.ln .r{display:flex;align-items:center;gap:5px}
+.bar{height:9px;display:flex}
+.bar i{display:block;height:100%}
+.ln .k{font:600 12px/1 var(--num);color:var(--muted)}
+.act{height:3px;background:var(--ink)}
+.scale{display:flex;gap:10px;padding:0 8px}
+.scale .sp{width:62px;flex-shrink:0}
+.scale .ax{flex:1;position:relative;height:14px;font-size:11px;color:var(--muted)}
+.scale .ax span{position:absolute;transform:translateX(-50%)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:16px;height:6px}
+.road{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
+.road .hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.road .hd b{font:700 15px var(--display);letter-spacing:.04em;text-transform:uppercase}
+.road .hd span{font-size:12px;color:var(--muted)}
+.lanes{position:relative;display:flex;flex-direction:column;gap:3px}
+.lane{height:5px;display:flex;gap:2px}
+.lane i{display:block}
+.lane i+i{flex:1;opacity:.22}
+.mark{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--ink)}
+.road .lbl{position:relative;height:16px;font-size:11px;color:var(--muted)}
+.road .lbl span{position:absolute;white-space:nowrap}
+@media (min-width:960px){.build{padding:24px 24px 20px;gap:18px}.stats{display:flex;gap:10px;flex-shrink:0}.stat{white-space:nowrap}.wk{gap:16px;padding:10px 12px}.wk .lab,.scale .sp{width:88px}.wk .lab b{font-size:26px}.bar{height:11px}.lane{height:6px}.bhead{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}}
+
+/* Day list */
+.week .hd{display:flex;align-items:baseline;justify-content:space-between;padding:16px 16px 12px}
+.week .hd b{font:600 20px var(--num)}
+.day{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:12px 16px;border-top:1px solid var(--line2)}
+.day.rest{padding-top:8px;padding-bottom:8px}
+.day.is-today{background:var(--soft)}
+.dn{display:flex;flex-direction:column;font:600 18px/1.1 var(--num)}
+.dn small{font:400 12px var(--body);color:var(--muted)}
+.sess{min-width:0;display:flex;flex-direction:column;gap:3px}
+.sess .t{display:flex;align-items:center;gap:8px;font-weight:600}
+.day.rest .t{font-weight:400;color:var(--muted)}
+.z{font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 6px;border-radius:3px;flex-shrink:0}
+.tgt,.why{font-size:13px;color:var(--muted)}
+.did{font-size:14px}
+.st{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.hit{color:var(--hit)} .st.part{color:var(--warn)} .st.miss{color:var(--miss)} .st.extra{color:var(--ink)}
+.st.plan{color:var(--muted);border-color:var(--line)} .st.today{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+@media (max-width:420px){.day{grid-template-columns:44px 1fr}.day .st{grid-column:2;justify-self:start}}
+@media (min-width:960px){.week .hd{padding:18px 20px 14px}.day{grid-template-columns:72px 1fr auto;padding:14px 20px;gap:16px}.day.rest{padding-top:9px;padding-bottom:9px}.dn{flex-direction:row;align-items:baseline;gap:6px;font-size:19px}}
+
+/* Other weeks */
+.others{display:flex;flex-direction:column;gap:10px}
+.olist{display:grid;gap:12px}
+@media (min-width:960px){.olist{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}
+.ow{overflow:hidden}
+.ow .whead{display:flex;flex-direction:column;gap:10px;width:100%;padding:14px 14px 12px;border:0;background:none;text-align:left;cursor:pointer}
+.ow .t{display:flex;align-items:baseline;justify-content:space-between;gap:8px;width:100%}
+.ow .t b{font:700 21px var(--num)}
+.ow .t span{font:600 19px var(--num)}
+.cells{display:flex;gap:4px;width:100%}
+.cells i{flex:1;height:34px;border-radius:3px;display:flex;align-items:center;justify-content:center;font:600 15px var(--num);font-style:normal}
+.cells i.off{border:1px dashed var(--line);color:var(--muted);font:600 11px var(--body)}
+.cells i.missed{opacity:.3}
+.ow .key{font-size:13px;color:var(--muted)}
+.ow .dl[hidden]{display:none}
+
+/* Zones */
+.zones{display:flex;flex-direction:column;gap:12px}
+.zbox{display:flex;flex-direction:column;gap:10px;padding:14px}
+.zr{display:flex;flex-direction:column;gap:4px}
+.zr .h{display:flex;justify-content:space-between;font-size:13px}
+.zr .h span{font-weight:600}
+.zr .h b{font:600 16px var(--num)}
+.track{position:relative;height:8px;background:var(--line2)}
+.track i{position:absolute;top:0;bottom:0}
+.track .mp{top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.ticks{position:relative;height:16px;font-size:11px;color:var(--muted)}
+.ticks span{position:absolute;transform:translateX(-50%)}
+.zkey{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.zkey i{width:2px;height:12px;background:var(--ink)}
+footer{font-size:13px;color:var(--muted)}
+
+/* Tabs */
+.tabs{display:flex;gap:28px;margin-top:20px;border-bottom:1px solid var(--line)}
+.tabs button{min-height:44px;padding:10px 0 7px;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;font:700 15px var(--display);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.tabs .cnt{font:600 13px var(--num);margin-left:4px;padding:1px 6px;border-radius:999px;background:var(--line2);color:var(--ink)}
+.tabs .cnt:empty{display:none}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Runs log */
+.runs{display:flex;flex-direction:column;gap:16px;margin-top:24px}
+.rstats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rstats .stat{background:var(--surface);border:1px solid var(--line)}
+.rlog{overflow:hidden}
+.rlog table{width:100%;border-collapse:collapse}
+.rlog caption{text-align:left;padding:14px 16px 10px}
+.rlog th{font:600 12px var(--body);color:var(--muted);text-align:left;padding:8px 12px;border-top:1px solid var(--line2)}
+.rlog td{padding:12px;border-top:1px solid var(--line2);vertical-align:middle}
+.rlog td.c-date{font:600 18px/1.1 var(--num);white-space:nowrap}
+.rlog td.c-date small{display:block;font:400 12px var(--body);color:var(--muted)}
+.rlog .t{display:flex;align-items:center;gap:8px;font-weight:600}
+.rlog .num{font:600 18px var(--num);white-space:nowrap}
+.rlog tr.missed .num,.rlog tr.missed .t{color:var(--muted)}
+.rempty{padding:0 16px 16px}
+@media (min-width:700px){.rstats{grid-template-columns:repeat(4,minmax(0,1fr))}.rlog th:first-child,.rlog td:first-child{padding-left:20px}.rlog th:last-child,.rlog td:last-child{padding-right:20px}.rlog caption{padding:18px 20px 12px}}
+@media (max-width:699px){
+  .rlog thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .rlog tr{display:grid;grid-template-columns:48px repeat(3,minmax(0,1fr)) auto;grid-template-areas:"date sess sess sess res" "date dist time pace link";gap:4px 8px;padding:12px 16px;border-top:1px solid var(--line2)}
+  .rlog td{padding:0;border:0}
+  .rlog .c-date{grid-area:date}.rlog .c-sess{grid-area:sess}.rlog .c-res{grid-area:res;justify-self:end}
+  .rlog .c-dist{grid-area:dist}.rlog .c-time{grid-area:time}.rlog .c-pace{grid-area:pace}.rlog .c-link{grid-area:link;justify-self:end}
+  .rlog .num{font-size:16px}
+}
+@media (prefers-reduced-motion: no-preference){.emblem line{transition:opacity .4s}}
 </style>
 </head>
 <body>
 <main>
   <header>
-    <h1>Tokyo lead-up</h1>
-    <p class="lede">Five weeks building from about 40 km to the volume Pfitz 18/55 opens with. The block starts Monday 2 November. Tokyo is Sunday 7 March.</p>
+    <div class="top">
+      <div class="brand">Tokyo lead-up</div>
+      <div class="sync" id="sync" data-state="idle">
+        <button class="btn ghost" id="syncBtn" hidden>Refresh</button>
+        <a class="btn" id="connectBtn" href="/api/auth/start" hidden>Connect Strava</a>
+      </div>
+    </div>
+    <div class="hero">
+      <svg class="emblem" id="emblem" viewBox="-100 -100 200 200" role="img" aria-labelledby="emblemTitle"><title id="emblemTitle">Lead-up emblem: one line per run</title></svg>
+      <div class="count">
+        <div class="days"><b id="raceDays">–</b><span>days</span></div>
+        <div class="ja" lang="ja">東京マラソン</div>
+        <div class="date">Sun 7 Mar 2027</div>
+        <div class="sub" id="blockLine"></div>
+      </div>
+      <p class="caption">Your lead-up as an emblem: each line is a run. Direction is the day, width is the distance, colour is the zone. Lines turn solid as Strava logs them.</p>
+    </div>
+    <p id="syncLine" class="muted" aria-live="polite"><span class="dot"></span><span id="syncText">Plan only</span></p>
   </header>
 
-  <section class="ramp" aria-label="Weekly volume, planned against actual">
-    <svg id="ramp" viewBox="0 0 600 230" role="img" aria-labelledby="rampTitle"><title id="rampTitle">Weekly kilometres, planned and run</title></svg>
-    <div class="legend"><span><i class="sw plan"></i>Planned</span><span><i class="sw act"></i>Run (Strava)</span></div>
-  </section>
-
-  <div class="sync" id="sync" data-state="idle" aria-live="polite">
-    <p><span class="dot"></span><span id="syncText">Plan only</span></p>
-    <button class="btn" id="syncBtn" hidden>Refresh</button>
-    <a class="btn" id="connectBtn" href="/api/auth/start" hidden>Connect Strava</a>
+  <div class="tabs" role="tablist" aria-label="View">
+    <button type="button" role="tab" id="tab-plan" aria-selected="true" aria-controls="panel-plan">Plan</button>
+    <button type="button" role="tab" id="tab-runs" aria-selected="false" aria-controls="panel-runs" tabindex="-1">Runs <span class="cnt" id="runCount"></span></button>
   </div>
 
-  <section class="band" aria-labelledby="bandTitle">
-    <h2 id="bandTitle">Pace band</h2>
-    <p>Built on a 4:35/km marathon pace. On hills, run the effort and let the pace drift.</p>
-    <div class="strip" id="strip"></div>
+  <section class="runs" id="panel-runs" role="tabpanel" aria-labelledby="tab-runs" tabindex="0" hidden>
+    <div class="rstats" id="rstats"></div>
+    <div class="card rlog">
+      <table>
+        <caption class="lbl" id="rcap">Every planned and logged run so far, newest first</caption>
+        <thead><tr><th scope="col" class="c-date">Date</th><th scope="col" class="c-sess">Session</th><th scope="col" class="c-dist">Distance</th><th scope="col" class="c-time">Time</th><th scope="col" class="c-pace">Pace</th><th scope="col" class="c-res">Result</th><th scope="col" class="c-link"><span class="vh">Strava</span></th></tr></thead>
+        <tbody id="rbody"></tbody>
+      </table>
+      <p class="rempty sub" id="rempty" hidden></p>
+    </div>
   </section>
 
-  <section class="weeks" id="weeks" aria-label="Weeks"></section>
-
-  <p class="after">Wednesdays are PT. A run counts as hit when you cover at least 90% of the distance and average within 5 s/km of the band. On LT days only distance is checked, so look at your laps in Strava for the LT block.</p>
+  <div class="cols" id="panel-plan" role="tabpanel" aria-labelledby="tab-plan">
+    <div class="left">
+      <section class="today o1" id="today" aria-label="Today"></section>
+      <section class="zones o6" aria-labelledby="zH">
+        <div><h2 id="zH">Pace zones</h2><p class="sub">From a 4:35/km marathon. On hills, run the effort.</p></div>
+        <div class="card zbox" id="zbox"></div>
+      </section>
+      <footer class="o7">A run is <b>Hit</b> when you cover at least 90% of the distance and average within 5 s/km of the zone. On LT days only distance is checked, so look at your laps in Strava for the LT block. Wednesdays are PT.</footer>
+    </div>
+    <div class="right">
+      <section class="card build o2" aria-labelledby="bH">
+        <div class="bhead">
+          <div><h2 id="bH">Build to the block</h2><p class="sub">Four runs a week, one line each. Length is distance, colour is the zone. The black line under a run is what Strava logged.</p></div>
+          <div class="stats" id="stats"></div>
+        </div>
+        <div class="wks" id="wks"></div>
+        <div class="legend" id="legend"></div>
+        <div class="road" id="road"></div>
+      </section>
+      <section class="card week o3" aria-labelledby="wH">
+        <div class="hd"><h2 id="wH">This week</h2><b id="weekKm"></b></div>
+        <div id="thisWeek"></div>
+      </section>
+      <section class="others o4" id="upSec" aria-labelledby="upH"><h2 id="upH">Coming up</h2><div class="olist" id="upList"></div></section>
+      <section class="others o5" id="pastSec" aria-labelledby="pastH" hidden><h2 id="pastH">Earlier</h2><div class="olist" id="pastList"></div></section>
+    </div>
+  </div>
 </main>
 
 <script>
 (function(){
   var ZONES = {
-    rec:{name:"Recovery",lo:345,hi:375,cls:"z-rec"},
-    ga:{name:"General aerobic",lo:315,hi:345,cls:"z-ga"},
-    long:{name:"Long",lo:305,hi:330,cls:"z-long"},
-    mp:{name:"Marathon pace",lo:270,hi:280,cls:"z-mp"},
-    lt:{name:"LT",lo:260,hi:270,cls:"z-lt"},
-    str:{name:"Strides",lo:230,hi:240,cls:"z-str"}
+    rec:{name:"Recovery",short:"REC",lo:345,hi:375,bg:"var(--z-rec)",fg:"#111"},
+    ga:{name:"General aerobic",short:"GA",lo:315,hi:345,bg:"var(--z-ga)",fg:"#111"},
+    long:{name:"Long",short:"LONG",lo:305,hi:330,bg:"var(--z-long)",fg:"#111"},
+    mp:{name:"Marathon pace",short:"MP",lo:270,hi:280,bg:"var(--z-mp)",fg:"#111"},
+    lt:{name:"Lactate threshold",short:"LT",lo:260,hi:270,bg:"var(--z-lt)",fg:"#fff"},
+    str:{name:"Strides",short:"STR",lo:230,hi:240,bg:"var(--z-str)",fg:"#111"}
   };
   var BAND_ORDER=["rec","ga","long","mp","lt","str"];
+  var RACE="2027-03-07", BLOCK="2026-11-02", LT_PACE=265;
 
   function run(km,z,label,extra){return Object.assign({t:"run",km:km,z:z,label:label},extra||{});}
   var REST={t:"rest"}, PT={t:"pt"};
   var PLAN=[
-    {start:"2026-09-28",days:[REST,run(10,"ga","General aerobic + 6 × 100 m strides",{strides:true}),PT,run(10,"ga","General aerobic"),REST,run(6,"rec","Recovery"),run(17,"long","Long run")]},
-    {start:"2026-10-05",days:[REST,run(11,"lt","11 km with 15 min at LT",{ltMin:15}),PT,run(11,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(18,"long","Long run")]},
-    {start:"2026-10-12",days:[REST,run(12,"ga","General aerobic + 6 × 100 m strides",{strides:true}),PT,run(12,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(18,"long","Long run")]},
-    {start:"2026-10-19",days:[REST,run(13,"lt","13 km with 20 min at LT",{ltMin:20}),PT,run(13,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(19,"long","Long run")]},
-    {start:"2026-10-26",days:[REST,run(13,"ga","General aerobic + 6 × 100 m strides",{strides:true}),PT,run(14,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(18,"long","Long run")]}
+    {start:"2026-09-28",days:[REST,run(10,"ga","General aerobic",{strides:true}),PT,run(10,"ga","General aerobic"),REST,run(6,"rec","Recovery"),run(17,"long","Long run")]},
+    {start:"2026-10-05",days:[REST,run(11,"lt","with 15 min at LT",{ltMin:15}),PT,run(11,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(18,"long","Long run")]},
+    {start:"2026-10-12",days:[REST,run(12,"ga","General aerobic",{strides:true}),PT,run(12,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(18,"long","Long run")]},
+    {start:"2026-10-19",days:[REST,run(13,"lt","with 20 min at LT",{ltMin:20}),PT,run(13,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(19,"long","Long run")]},
+    {start:"2026-10-26",days:[REST,run(13,"ga","General aerobic",{strides:true}),PT,run(14,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(18,"long","Long run")]}
   ];
   var DN=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   var RUN_TYPES={Run:1,TrailRun:1,VirtualRun:1};
 
   function addDays(iso,n){var p=iso.split("-").map(Number);var d=new Date(Date.UTC(p[0],p[1]-1,p[2]+n));return d.toISOString().slice(0,10);}
+  function daysBetween(a,b){var p=a.split("-").map(Number),q=b.split("-").map(Number);return Math.round((Date.UTC(q[0],q[1]-1,q[2])-Date.UTC(p[0],p[1]-1,p[2]))/864e5);}
   function localToday(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
   function dmy(iso){var p=iso.split("-").map(Number);return p[2]+" "+MON[p[1]-1];}
+  function dow(iso){var p=iso.split("-").map(Number);return DN[(new Date(Date.UTC(p[0],p[1]-1,p[2])).getUTCDay()+6)%7];}
   function pace(s){var m=Math.floor(s/60),r=Math.round(s-m*60);if(r===60){m++;r=0;}return m+":"+String(r).padStart(2,"0");}
   function band(z){return pace(z.lo)+"–"+pace(z.hi);}
   function plannedKm(w){return w.days.reduce(function(a,d){return a+(d.km||0);},0);}
-  function h(tag,attrs){var el=document.createElement(tag);if(attrs)for(var k in attrs){if(k==="text")el.textContent=attrs[k];else if(k==="cls")el.className=attrs[k];else if(attrs[k]!==false&&attrs[k]!=null)el.setAttribute(k,attrs[k]);}for(var i=2;i<arguments.length;i++){var c=arguments[i];if(c==null)continue;el.appendChild(typeof c==="string"?document.createTextNode(c):c);}return el;}
+  function ltKm(p){return p.ltMin*60/LT_PACE;}
+  function h(tag,attrs){var el=document.createElement(tag);if(attrs)for(var k in attrs){if(k==="text")el.textContent=attrs[k];else if(k==="cls")el.className=attrs[k];else if(k==="style")el.style.cssText=attrs[k];else if(attrs[k]!==false&&attrs[k]!=null)el.setAttribute(k,attrs[k]);}for(var i=2;i<arguments.length;i++){var c=arguments[i];if(c==null)continue;el.appendChild(typeof c==="string"?document.createTextNode(c):c);}return el;}
+  function zfill(z){return "background:"+ZONES[z].bg+";color:"+ZONES[z].fg;}
 
   var TODAY=localToday();
-  var byDate={}; // iso -> activities[]
-  var hasData=false;
-  var open={};
+  var LAST=addDays(PLAN[PLAN.length-1].start,6);
+  var byDate={}, hasData=false, open={};
 
   function currentWeekIndex(){
     for(var i=0;i<PLAN.length;i++){var s=PLAN[i].start,e=addDays(s,6);if(TODAY>=s&&TODAY<=e)return i;}
     return TODAY<PLAN[0].start?0:PLAN.length-1;
   }
+  function planFor(iso){var i=daysBetween(PLAN[0].start,iso);if(i<0||i>=PLAN.length*7)return null;return PLAN[Math.floor(i/7)].days[i%7];}
 
   function evalDay(p,iso){
     var acts=byDate[iso]||[];
@@ -194,103 +361,309 @@ a.btn{color:inherit;text-decoration:none}
     var other=acts.filter(function(a){return !RUN_TYPES[a.sport_type];});
     var dist=runs.reduce(function(a,r){return a+(r.summary&&r.summary.distance||0);},0)/1000;
     var time=runs.reduce(function(a,r){return a+(r.summary&&r.summary.moving_time||0);},0);
-    var out={runs:runs,other:other,dist:dist,pace:dist>0?time/dist:null};
+    var out={runs:runs,other:other,dist:dist,time:time,pace:dist>0?time/dist:null,done:false,missed:false};
     var past=iso<TODAY, isToday=iso===TODAY;
     if(p.t==="rest"){out.st=runs.length?{c:"extra",t:"Extra run"}:null;return out;}
-    if(p.t==="pt"){out.st=other.length?{c:"hit",t:"Logged"}:null;if(runs.length)out.extra=true;return out;}
+    if(p.t==="pt"){out.st=other.length?{c:"hit",t:"Logged"}:null;return out;}
     if(!runs.length){
-      if(!hasData)out.st={c:isToday?"today":"plan",t:isToday?"Today":"Planned"};
-      else if(past)out.st={c:"miss",t:"Missed"};
-      else if(isToday)out.st={c:"today",t:"Today"};
-      else out.st={c:"plan",t:"Planned"};
+      if(hasData&&past){out.st={c:"miss",t:"Missed"};out.missed=true;}
+      else out.st=isToday?{c:"today",t:"Today"}:{c:"plan",t:"Planned"};
       return out;
     }
-    var reasons=[];var distOk=dist>=p.km*0.9;
+    out.done=true;
+    var reasons=[],distOk=dist>=p.km*0.9;
     if(!distOk)reasons.push((p.km-dist).toFixed(1)+" km short");
     if(p.z!=="lt"&&out.pace){var z=ZONES[p.z];
-      if(out.pace<z.lo-5)reasons.push(Math.round(z.lo-out.pace)+" s/km faster than the band");
-      else if(out.pace>z.hi+5)reasons.push(Math.round(out.pace-z.hi)+" s/km slower than the band");}
+      if(out.pace<z.lo-5)reasons.push(Math.round(z.lo-out.pace)+" s/km faster than the zone");
+      else if(out.pace>z.hi+5)reasons.push(Math.round(out.pace-z.hi)+" s/km slower than the zone");}
     out.reasons=reasons;
     out.st=reasons.length?{c:"part",t:distOk?"Off pace":"Short"}:{c:"hit",t:"Hit"};
     return out;
   }
+  function weekEvals(w){var ev=[],ak=0;for(var d=0;d<7;d++){var e=evalDay(w.days[d],addDays(w.start,d));ev.push(e);ak+=e.dist||0;}return {ev:ev,ak:ak};}
 
-  function renderRamp(){
-    var svg=document.getElementById("ramp");
+  function title(p){return p.t==="rest"?"Rest":p.t==="pt"?"PT":p.km+" km "+p.label;}
+  function target(p){
+    if(p.t!=="run")return null;var z=ZONES[p.z];
+    if(p.z==="lt")return p.ltMin+" min at "+band(ZONES.lt)+", the rest at "+band(ZONES.ga);
+    return band(z)+"/km"+(p.strides?" · strides "+band(ZONES.str):"");
+  }
+  function short(p){return p.t==="rest"?"Rest":p.t==="pt"?"PT":p.km+" km "+ZONES[p.z].short;}
+
+  // ---------- header ----------
+  function renderCountdown(){
+    var r=daysBetween(TODAY,RACE), b=daysBetween(TODAY,BLOCK);
+    document.getElementById("raceDays").textContent=r>0?r:0;
+    document.getElementById("blockLine").textContent=b>0?"Pfitz 18/55 starts in "+b+(b===1?" day":" days"):r>0?"Pfitz 18/55 is under way":"Race day";
+  }
+
+  // Tue across, Thu up and down, Sat and Sun on the diagonals.
+  var ANG={1:0,3:90,5:45,6:-45}, SHIFT={1:0,3:7,5:-7,6:12};
+  function renderEmblem(){
+    var svg=document.getElementById("emblem"),NS="http://www.w3.org/2000/svg";
     while(svg.childNodes.length>1)svg.removeChild(svg.lastChild);
-    var NS="http://www.w3.org/2000/svg";function s(tag,a,txt){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.appendChild(e);return e;}
-    var max=60,base=190,H=150,slot=120,bw=64,cur=currentWeekIndex();
-    PLAN.forEach(function(w,i){
-      var pk=plannedKm(w),x=i*slot+(slot-bw)/2,ph=pk/max*H;
-      var ak=0;for(var d=0;d<7;d++){var e=evalDay(w.days[d],addDays(w.start,d));ak+=e.dist||0;}
-      var ah=Math.min(ak,max)/max*H;
-      if(hasData&&ak>0)s("rect",{x:x,y:base-ah,width:bw,height:ah,"class":"bar-act"+(ak>=pk*0.95?" over":"")});
-      s("rect",{x:x,y:base-ph,width:bw,height:ph,"class":"bar-plan"});
-      s("text",{x:x+bw/2,y:base-ph-8,"text-anchor":"middle","class":"km"},hasData&&ak>0?(Math.round(ak)+" / "+pk):String(pk));
-      s("text",{x:x+bw/2,y:base+22,"text-anchor":"middle","class":"lbl"},dmy(w.start));
-      if(i===cur&&TODAY>=PLAN[0].start&&TODAY<=addDays(PLAN[PLAN.length-1].start,6))s("rect",{x:x,y:base+30,width:bw,height:4,"class":"now"});
+    function s(tag,a){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e;}
+    var defs=s("defs",{}),cp=document.createElementNS(NS,"clipPath");cp.setAttribute("id","emClip");
+    var c=document.createElementNS(NS,"circle");c.setAttribute("r","100");cp.appendChild(c);defs.appendChild(cp);
+    s("circle",{r:"100"}).style.fill="var(--surface)";
+    var g=s("g",{"clip-path":"url(#emClip)"});
+    function line(a,o,t,col,op){
+      var r=a*Math.PI/180,dx=Math.cos(r),dy=Math.sin(r),cx=-dy*o,cy=dx*o;
+      var l=document.createElementNS(NS,"line");
+      l.setAttribute("x1",(cx-dx*150).toFixed(1));l.setAttribute("y1",(cy-dy*150).toFixed(1));
+      l.setAttribute("x2",(cx+dx*150).toFixed(1));l.setAttribute("y2",(cy+dy*150).toFixed(1));
+      l.style.stroke=col;l.style.strokeWidth=t.toFixed(1);l.style.opacity=op;
+      g.appendChild(l);
+    }
+    PLAN.forEach(function(w,wi){
+      w.days.forEach(function(p,di){
+        if(p.t!=="run")return;
+        var iso=addDays(w.start,di),e=evalDay(p,iso);
+        var a=ANG[di]!=null?ANG[di]:di*26,o=(wi-2)*30+(SHIFT[di]||0),t=p.km*0.74;
+        var op=e.done?1:e.missed?0.2:iso===TODAY?0.95:0.72;
+        line(a,o,t,ZONES[p.z].bg,op);
+        if(p.z==="lt")line(a,o+t/2+2.5,ltKm(p)*0.74*1.4,ZONES.lt.bg,op);
+        if(p.strides)line(a,o-t/2-3,2.5,ZONES.str.bg,op===0.72?0.9:op);
+      });
     });
   }
 
-  function renderStrip(){
-    var el=document.getElementById("strip");el.textContent="";
-    BAND_ORDER.forEach(function(k){var z=ZONES[k];el.appendChild(h("div",{cls:z.cls},h("b",{text:k==="str"?"~"+pace(z.lo)+"–"+pace(z.hi):band(z)}),h("small",{text:z.name})));});
+  // ---------- today ----------
+  function chipsFor(p){
+    var chips=h("div",{cls:"chips"});
+    if(p.z==="lt"){chips.appendChild(h("span",{cls:"chip",style:zfill("lt")},band(ZONES.lt),h("small",{text:p.ltMin+" min LT"})));chips.appendChild(h("span",{cls:"chip",style:zfill("ga")},band(ZONES.ga),h("small",{text:"the rest"})));}
+    else{chips.appendChild(h("span",{cls:"chip",style:zfill(p.z)},band(ZONES[p.z]),h("small",{text:"/km"})));
+      if(p.strides)chips.appendChild(h("span",{cls:"chip",style:zfill("str")},band(ZONES.str),h("small",{text:"strides"})));}
+    return chips;
+  }
+  // Subtle "open on Strava" links, one per activity.
+  function stravaLinks(runs,label){
+    var s=h("span",{cls:"sv"});
+    runs.forEach(function(r,k){
+      var name=r.name||"Activity";
+      s.appendChild(h("a",{href:"https://www.strava.com/activities/"+encodeURIComponent(r.id),target:"_blank",rel:"noopener","aria-label":"Open "+name+" on Strava",text:(k?", ":"")+(label||name)+" ↗"}));
+    });
+    return s;
+  }
+  function actual(e){return h("span",null,h("b",{text:e.dist.toFixed(1)+" km"})," at ",h("b",{text:pace(e.pace)+"/km"}),e.time?" · "+dur(e.time):"");}
+  function dur(s){var hh=Math.floor(s/3600),m=Math.round((s-hh*3600)/60);if(m===60){hh++;m=0;}return (hh?hh+"h ":"")+m+"m";}
+  // Most recent day with a logged run, strictly before `iso`.
+  function latestRun(iso){
+    for(var d=addDays(iso,-1);d>=PLAN[0].start;d=addDays(d,-1)){var p=planFor(d);if(!p)continue;var e=evalDay(p,d);if(e.runs.length)return {iso:d,p:p,e:e};}
+    return null;
+  }
+  function nextRun(iso){for(var i=1;i<=14;i++){var d=addDays(iso,i),p=planFor(d);if(p&&p.t==="run")return {iso:d,p:p};}return null;}
+  function reviewBlock(r,withTitle){
+    var b=h("div",{cls:"more"});
+    b.appendChild(h("div",{cls:"mh"},h("span",{cls:"lbl",text:(withTitle?"Latest run · ":"Your run · ")+dow(r.iso)+" "+dmy(r.iso)}),r.e.st?h("span",{cls:"st "+r.e.st.c,text:r.e.st.t}):null));
+    if(withTitle)b.appendChild(h("div",{cls:"mt",text:r.p.t==="run"?title(r.p):"Extra run"}));
+    b.appendChild(h("div",{cls:"mv"},actual(r.e)));
+    if(r.e.reasons&&r.e.reasons.length)b.appendChild(h("div",{cls:"why",text:r.e.reasons.join(", ")}));
+    b.appendChild(stravaLinks(r.e.runs,r.e.runs.length>1?null:"View on Strava"));
+    return b;
+  }
+  function nextBlock(n){
+    var b=h("div",{cls:"more"}),tom=addDays(TODAY,1),tp=planFor(tom);
+    var lbl="Next run · "+(n.iso===tom?"tomorrow, ":"")+dow(n.iso)+" "+dmy(n.iso);
+    b.appendChild(h("div",{cls:"mh"},h("span",{cls:"lbl",text:lbl}),n.iso!==tom&&tp?h("span",{cls:"sub",text:"Tomorrow: "+title(tp)}):null));
+    b.appendChild(h("div",{cls:"mt",text:title(n.p)}));
+    if(n.p.strides)b.appendChild(h("div",{cls:"why",text:"Finish with 6 × 100 m strides"}));
+    b.appendChild(chipsFor(n.p));
+    return b;
+  }
+  function renderToday(){
+    var el=document.getElementById("today");el.textContent="";
+    var p=planFor(TODAY), inner=h("div",{cls:"in"}), tag=h("span",{cls:"tag",text:"Today · "+dow(TODAY)+" "+dmy(TODAY)});
+    var last=hasData?latestRun(addDays(TODAY,1)):null, nx=nextRun(TODAY);
+    if(!p){
+      var before=TODAY<PLAN[0].start;
+      inner.appendChild(h("div",{cls:"row"},tag));
+      inner.appendChild(h("h3",{text:before?"Lead-up starts "+dmy(PLAN[0].start):"Lead-up done"}));
+      inner.appendChild(h("p",{cls:"note muted",text:before?"Five weeks building to Pfitz 18/55.":"Pfitz 18/55 starts Mon "+dmy(BLOCK)+"."}));
+      el.appendChild(inner);
+      if(last&&!before)el.appendChild(reviewBlock(last,true));
+      if(nx)el.appendChild(nextBlock(nx));
+      return;
+    }
+    var wi=currentWeekIndex(),e=evalDay(p,TODAY);
+    inner.appendChild(h("div",{cls:"row"},tag,h("span",{cls:"sub",text:"Week "+(wi+1)+" of "+PLAN.length})));
+    inner.appendChild(h("h3",{text:p.t==="rest"?"Rest day":p.t==="pt"?"PT":title(p)}));
+    if(p.t==="run"&&!e.done){
+      if(p.strides)inner.appendChild(h("p",{cls:"note",text:"Finish with 6 × 100 m strides"}));
+      inner.appendChild(chipsFor(p));
+    } else if(p.t!=="run")inner.appendChild(h("p",{cls:"note muted",text:p.t==="pt"?"PT session. No run today.":"No run today. Recover."}));
+    el.appendChild(inner);
+    // Today's run once logged, otherwise the most recent one; then what's next.
+    if(e.runs.length)el.appendChild(reviewBlock({iso:TODAY,p:p,e:e},p.t!=="run"));
+    else if(last)el.appendChild(reviewBlock(last,true));
+    if(nx)el.appendChild(nextBlock(nx));
   }
 
-  function sessionTarget(p){
-    if(p.t!=="run")return null;var z=ZONES[p.z];
-    if(p.z==="lt")return p.ltMin+" min at "+band(ZONES.lt)+", the rest at "+band(ZONES.ga);
-    var t=z.name+" "+band(z)+"/km";
-    if(p.strides)t+=", strides at "+band(ZONES.str);
-    return t;
+  // ---------- build chart ----------
+  var MAXKM=Math.max.apply(null,PLAN.map(function(w){return Math.max.apply(null,w.days.map(function(d){return d.km||0;}));}));
+  function frac(k){return "calc((100% - 26px) * "+(Math.min(k,MAXKM*1.25)/MAXKM).toFixed(4)+")";}
+  function renderBuild(){
+    var total=PLAN.reduce(function(a,w){return a+plannedKm(w);},0),longest=null,ran=0;
+    PLAN.forEach(function(w){w.days.forEach(function(d,i){if(d.km&&(!longest||d.km>longest.km))longest={km:d.km,iso:addDays(w.start,i)};});ran+=weekEvals(w).ak;});
+    var stats=document.getElementById("stats");stats.textContent="";
+    stats.appendChild(h("div",{cls:"stat"},h("b",{text:hasData?Math.round(ran)+" / "+total+" km":total+" km"}),h("span",{text:hasData?"run of the lead-up":"in the five lead-up weeks"})));
+    stats.appendChild(h("div",{cls:"stat"},h("b",{text:longest.km+" km"}),h("span",{text:"longest run, "+dow(longest.iso)+" "+dmy(longest.iso)})));
+
+    var root=document.getElementById("wks");root.textContent="";var cur=currentWeekIndex();
+    PLAN.forEach(function(w,i){
+      var pk=plannedKm(w),we=weekEvals(w),isCur=i===cur&&TODAY>=PLAN[0].start&&TODAY<=LAST;
+      var lab=h("div",{cls:"lab"},h("b",{text:(hasData&&we.ak>0?Math.round(we.ak)+"/":"")+pk}),h("span",{text:dmy(w.start)}),isCur?h("span",{cls:"now",text:"NOW"}):null);
+      var lines=h("div",{cls:"lines"});
+      [5,10,15].forEach(function(k){if(k<MAXKM)lines.appendChild(h("i",{cls:"gl",style:"left:"+frac(k)}));});
+      w.days.forEach(function(p,d){
+        if(p.t!=="run")return;var e=we.ev[d],bar=h("div",{cls:"bar",style:"width:"+frac(p.km)});
+        if(p.z==="lt"){var lk=ltKm(p);bar.appendChild(h("i",{style:"flex:2 1 0;background:"+ZONES.ga.bg}));bar.appendChild(h("i",{style:"flex:"+lk.toFixed(2)+" 1 0;background:"+ZONES.lt.bg}));bar.appendChild(h("i",{style:"flex:"+(p.km-2-lk).toFixed(2)+" 1 0;background:"+ZONES.ga.bg}));}
+        else{bar.appendChild(h("i",{style:"flex:1 1 0;background:"+ZONES[p.z].bg}));if(p.strides)bar.appendChild(h("i",{style:"width:6px;background:"+ZONES.str.bg}));}
+        if(e.missed)bar.style.opacity=".3";
+        var ln=h("div",{cls:"ln"},h("div",{cls:"r"},bar,h("span",{cls:"k",text:String(p.km)})));
+        if(e.done)ln.appendChild(h("div",{cls:"act",style:"width:"+frac(e.dist),title:e.dist.toFixed(1)+" km logged"}));
+        lines.appendChild(ln);
+      });
+      root.appendChild(h("div",{cls:"wk"+(isCur?" cur":"")},lab,lines));
+    });
+    var ax=h("div",{cls:"ax"});[5,10,15].forEach(function(k){if(k<MAXKM)ax.appendChild(h("span",{style:"left:"+frac(k),text:k+(k===15?" km":"")}));});
+    root.appendChild(h("div",{cls:"scale"},h("div",{cls:"sp"}),ax));
+
+    var lg=document.getElementById("legend");lg.textContent="";
+    [["ga","General aerobic"],["lt","LT"],["rec","Recovery"],["long","Long"],["str","Strides"]].forEach(function(x){lg.appendChild(h("span",null,h("i",{style:"background:"+ZONES[x[0]].bg+(x[0]==="str"?";width:6px":"")}),x[1]));});
+    if(hasData)lg.appendChild(h("span",null,h("i",{style:"height:3px;background:var(--ink)"}),"Logged"));
+
+    var weeks=Math.ceil((daysBetween(PLAN[0].start,RACE)+1)/7),lead=PLAN.length/weeks*100;
+    var pos=Math.max(0,Math.min(100,daysBetween(PLAN[0].start,TODAY)/7/weeks*100));
+    var road=document.getElementById("road");road.textContent="";
+    road.appendChild(h("div",{cls:"hd"},h("b",{text:"Road to Tokyo"}),h("span",{text:weeks+" weeks · "+PLAN.length+" lead-up + "+(weeks-PLAN.length)+" Pfitz"})));
+    var lanes=h("div",{cls:"lanes","aria-hidden":"true"});
+    ["lt","ga","rec","long"].forEach(function(z){lanes.appendChild(h("div",{cls:"lane"},h("i",{style:"width:"+lead.toFixed(1)+"%;background:"+ZONES[z].bg}),h("i",{style:"background:"+ZONES[z].bg})));});
+    lanes.appendChild(h("i",{cls:"mark",style:"left:calc("+pos.toFixed(1)+"% - "+(pos*0.03).toFixed(1)+"px)"}));
+    lanes.appendChild(h("i",{cls:"mark",style:"right:0"}));
+    road.appendChild(lanes);
+    road.appendChild(h("div",{cls:"lbl"},h("span",{style:"left:0;font-weight:700;color:var(--ink)",text:"Now"}),h("span",{style:"left:"+lead.toFixed(1)+"%",text:"Block · "+dmy(BLOCK)}),h("span",{style:"right:0;font-weight:700;color:var(--ink)",text:"Tokyo · "+dmy(RACE)})));
+  }
+
+  // ---------- day rows ----------
+  function dayRow(p,iso,e){
+    var row=h("div",{cls:"day"+(p.t==="run"?"":" rest")+(iso===TODAY?" is-today":"")});
+    row.appendChild(h("div",{cls:"dn"},dow(iso),h("small",{text:dmy(iso)})));
+    var s=h("div",{cls:"sess"});
+    if(p.t==="run"){
+      s.appendChild(h("div",{cls:"t"},h("span",{cls:"z",style:zfill(p.z),text:ZONES[p.z].short}),title(p)));
+      s.appendChild(h("div",{cls:"tgt",text:target(p)}));
+    } else s.appendChild(h("div",{cls:"t",text:title(p)}));
+    if(e.runs.length){
+      s.appendChild(h("div",{cls:"did"},actual(e)," ",stravaLinks(e.runs)));
+      if(e.reasons&&e.reasons.length)s.appendChild(h("div",{cls:"why",text:e.reasons.join(", ")}));
+    }
+    if(e.other.length&&p.t==="pt")s.appendChild(h("div",{cls:"did",text:e.other.map(function(o){return o.name||o.sport_type;}).join(", ")}));
+    row.appendChild(s);
+    row.appendChild(e.st?h("span",{cls:"st "+e.st.c,text:e.st.t}):h("span"));
+    return row;
   }
 
   function renderWeeks(){
-    var root=document.getElementById("weeks");root.textContent="";
-    var cur=currentWeekIndex();
-    PLAN.forEach(function(w,i){
-      var pk=plannedKm(w),ak=0,evals=[];
-      for(var d=0;d<7;d++){var iso=addDays(w.start,d),e=evalDay(w.days[d],iso);evals.push(e);ak+=e.dist||0;}
-      var isOpen=open[i]!=null?open[i]:i===cur;
-      var id="wk"+i;
-      var chev='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
-      var head=h("button",{cls:"whead","aria-expanded":String(isOpen),"aria-controls":id},
-        h("span",null,h("h3",{text:"Week of "+dmy(w.start)}),h("span",{cls:"sub",text:(i+1)+" of 5"+(i===cur&&TODAY>=w.start?", this week":"")})),
-        h("span",{cls:"wkm"},(hasData?Math.round(ak)+" / ":"")+pk+" km",h("small",{text:hasData?"run / planned":"planned"})));
-      head.insertAdjacentHTML("beforeend",chev);
-      var list=h("div",{cls:"days",id:id});if(!isOpen)list.hidden=true;
-      head.addEventListener("click",function(){open[i]=list.hidden;list.hidden=!list.hidden;head.setAttribute("aria-expanded",String(!list.hidden));});
+    var cur=currentWeekIndex(),w=PLAN[cur],we=weekEvals(w);
+    document.getElementById("wH").textContent=(TODAY>=w.start&&TODAY<=addDays(w.start,6)?"This week":"Week "+(cur+1))+" · "+dmy(w.start);
+    document.getElementById("weekKm").textContent=(hasData?Math.round(we.ak)+" / ":"")+plannedKm(w)+" km";
+    var tw=document.getElementById("thisWeek");tw.textContent="";
+    w.days.forEach(function(p,d){tw.appendChild(dayRow(p,addDays(w.start,d),we.ev[d]));});
 
+    var up=document.getElementById("upList"),past=document.getElementById("pastList");up.textContent="";past.textContent="";
+    var pastWeeks=[];
+    PLAN.forEach(function(w,i){
+      if(i===cur)return;
+      var pk=plannedKm(w),e=weekEvals(w),id="wk"+i,isOpen=!!open[i];
+      var cells=h("span",{cls:"cells"});
       w.days.forEach(function(p,d){
-        var iso=addDays(w.start,d),e=evals[d];
-        var row=h("div",{cls:"day"+(p.t==="run"?"":" rest")+(iso===TODAY?" is-today":"")});
-        row.appendChild(h("div",{cls:"dname"},DN[d],h("small",{text:dmy(iso)})));
-        var sess=h("div",{cls:"sess"});
-        if(p.t==="run"){
-          sess.appendChild(h("div",{cls:"t"},h("i",{cls:"zchip "+ZONES[p.z].cls,"aria-hidden":"true"}),p.km+" km  "+p.label));
-          sess.appendChild(h("div",{cls:"tgt",text:sessionTarget(p)}));
-        }else sess.appendChild(h("div",{cls:"t",text:p.t==="pt"?"PT":"Rest"}));
-        if(e.runs.length){
-          var a=h("div",{cls:"act"});
-          a.appendChild(document.createTextNode(e.dist.toFixed(1)+" km at "+pace(e.pace)+"/km  "));
-          e.runs.forEach(function(r,k){a.appendChild(h("a",{href:"https://www.strava.com/activities/"+encodeURIComponent(r.id),target:"_blank",rel:"noopener",text:(k?", ":"")+(r.name||"Activity")}));});
-          sess.appendChild(a);
-          if(e.reasons&&e.reasons.length)sess.appendChild(h("div",{cls:"why",text:e.reasons.join(", ")}));
-        }
-        if(e.other.length&&p.t==="pt")sess.appendChild(h("div",{cls:"act",text:e.other.map(function(o){return o.name||o.sport_type;}).join(", ")}));
-        row.appendChild(sess);
-        row.appendChild(e.st?h("span",{cls:"st "+e.st.c,text:e.st.t}):h("span"));
-        list.appendChild(row);
+        cells.appendChild(p.t==="run"?h("i",{cls:e.ev[d].missed?"missed":"",style:zfill(p.z),text:String(p.km)}):h("i",{cls:"off",text:p.t==="pt"?"PT":""}));
       });
-      root.appendChild(h("article",{cls:"week"+(i===cur?" current":"")},head,list));
+      var tue=w.days[1];
+      var key=(tue.z==="lt"?tue.ltMin+" min LT Tuesday":"Strides Tuesday")+" · long run "+w.days[6].km+" km";
+      var head=h("button",{cls:"whead","aria-expanded":String(isOpen),"aria-controls":id},
+        h("span",{cls:"t"},h("b",{text:"Week "+(i+1)+" · "+dmy(w.start)}),h("span",{text:(hasData&&e.ak>0?Math.round(e.ak)+" / ":"")+pk+" km"})),
+        cells,h("span",{cls:"key",text:key}));
+      var list=h("div",{cls:"dl",id:id});list.hidden=!isOpen;
+      w.days.forEach(function(p,d){list.appendChild(dayRow(p,addDays(w.start,d),e.ev[d]));});
+      head.addEventListener("click",function(){open[i]=list.hidden;list.hidden=!list.hidden;head.setAttribute("aria-expanded",String(!list.hidden));});
+      var card=h("article",{cls:"card ow"},head,list);
+      if(i<cur)pastWeeks.unshift(card);else up.appendChild(card);
+    });
+    pastWeeks.forEach(function(c){past.appendChild(c);});
+    document.getElementById("upSec").hidden=!up.childNodes.length;
+    document.getElementById("pastSec").hidden=!pastWeeks.length;
+  }
+
+  function renderZones(){
+    var el=document.getElementById("zbox"),LO=225,HI=380,SPAN=HI-LO;
+    function x(s){return ((HI-s)/SPAN*100).toFixed(1)+"%";}
+    BAND_ORDER.forEach(function(k){var z=ZONES[k];
+      el.appendChild(h("div",{cls:"zr"},h("div",{cls:"h"},h("span",{text:z.name}),h("b",{text:(k==="str"?"~":"")+band(z)})),
+        h("div",{cls:"track"},h("i",{style:"left:"+x(z.hi)+";width:"+((z.hi-z.lo)/SPAN*100).toFixed(1)+"%;background:"+z.bg}),h("i",{cls:"mp",style:"left:"+x(275)}))));
+    });
+    var t=h("div",{cls:"ticks"});[360,330,300,270,240].forEach(function(s){t.appendChild(h("span",{style:"left:"+x(s),text:pace(s)}));});
+    el.appendChild(t);
+    el.appendChild(h("div",{cls:"zkey"},h("i"),"Goal marathon pace 4:35 · slower ← → faster"));
+  }
+
+  // ---------- runs log ----------
+  function renderRuns(){
+    var body=document.getElementById("rbody"),empty=document.getElementById("rempty"),stats=document.getElementById("rstats");
+    body.textContent="";stats.textContent="";
+    var rows=[],plannedKm=0,ranKm=0,time=0,due=0,hits=0,count=0;
+    for(var d=PLAN[0].start;d<=LAST&&d<=TODAY;d=addDays(d,1)){
+      var p=planFor(d),e=evalDay(p,d);
+      if(p.t==="run"&&(d<TODAY||e.done)){plannedKm+=p.km;due++;if(e.st&&e.st.c==="hit")hits++;}
+      if(e.runs.length){ranKm+=e.dist;time+=e.time;count+=e.runs.length;}
+      if(e.runs.length||(p.t==="run"&&d<TODAY))rows.unshift({iso:d,p:p,e:e});
+    }
+    document.getElementById("runCount").textContent=hasData&&count?String(count):"";
+    function stat(v,l){stats.appendChild(h("div",{cls:"stat"},h("b",{text:v}),h("span",{text:l})));}
+    stat(hasData?String(count):"–","runs logged");
+    stat(hasData?Math.round(ranKm)+" / "+plannedKm+" km":"–","run vs planned to date");
+    stat(hasData&&due?hits+" of "+due:"–","planned runs hit");
+    stat(hasData&&ranKm?pace(time/ranKm)+"/km":"–","average pace");
+    empty.hidden=hasData&&rows.length>0;
+    if(!hasData){empty.textContent="Your runs show here once Strava syncs.";return;}
+    if(!rows.length){empty.textContent="No runs logged in the lead-up yet.";return;}
+    rows.forEach(function(r){
+      var p=r.p,e=r.e,run=p.t==="run";
+      var sess=run?h("div",{cls:"t"},h("span",{cls:"z",style:zfill(p.z),text:ZONES[p.z].short}),title(p)):h("div",{cls:"t"},(p.t==="pt"?"PT day":"Rest day")+" · extra run");
+      var why=e.reasons&&e.reasons.length?h("div",{cls:"why",text:e.reasons.join(", ")}):null;
+      body.appendChild(h("tr",{cls:e.missed?"missed":""},
+        h("td",{cls:"c-date"},dow(r.iso),h("small",{text:dmy(r.iso)})),
+        h("td",{cls:"c-sess"},sess,why),
+        h("td",{cls:"c-dist"},h("span",{cls:"num",text:e.runs.length?e.dist.toFixed(1)+" km":"–"})),
+        h("td",{cls:"c-time"},h("span",{cls:"num",text:e.runs.length?dur(e.time):""})),
+        h("td",{cls:"c-pace"},h("span",{cls:"num",text:e.pace?pace(e.pace)+"/km":""})),
+        h("td",{cls:"c-res"},e.st?h("span",{cls:"st "+e.st.c,text:e.st.t}):null),
+        h("td",{cls:"c-link"},e.runs.length?stravaLinks(e.runs,"Strava"):null)));
     });
   }
 
-  function renderAll(){renderRamp();renderWeeks();}
+  // ---------- tabs ----------
+  var TABS=[document.getElementById("tab-plan"),document.getElementById("tab-runs")];
+  function selectTab(t,focus){
+    TABS.forEach(function(b){var on=b===t;b.setAttribute("aria-selected",String(on));b.tabIndex=on?0:-1;document.getElementById(b.getAttribute("aria-controls")).hidden=!on;});
+    if(focus)t.focus();
+    try{history.replaceState(null,"",t.id==="tab-runs"?"#runs":location.pathname+location.search);}catch(_){}
+  }
+  TABS.forEach(function(b,i){
+    b.addEventListener("click",function(){selectTab(b);});
+    b.addEventListener("keydown",function(ev){
+      var k=ev.key==="ArrowRight"?1:ev.key==="ArrowLeft"?-1:0;
+      if(k){ev.preventDefault();selectTab(TABS[(i+k+TABS.length)%TABS.length],true);}
+    });
+  });
+  if(location.hash==="#runs")selectTab(TABS[1]);
+
+  function renderAll(){renderEmblem();renderToday();renderBuild();renderWeeks();renderRuns();}
 
   // Strava, through this site's own API (infra/lambda/handler.ts)
-  var syncEl=document.getElementById("sync"),syncText=document.getElementById("syncText"),syncBtn=document.getElementById("syncBtn"),connectBtn=document.getElementById("connectBtn");
-  function setSync(state,text,showBtn,showConnect){syncEl.dataset.state=state;syncText.textContent=text;syncBtn.hidden=!showBtn;connectBtn.hidden=!showConnect;}
+  var syncEl=document.getElementById("sync"),syncLine=document.getElementById("syncLine"),syncText=document.getElementById("syncText"),syncBtn=document.getElementById("syncBtn"),connectBtn=document.getElementById("connectBtn");
+  function setSync(state,text,showBtn,showConnect){syncEl.dataset.state=state;syncLine.dataset.state=state;syncText.textContent=text;syncBtn.hidden=!showBtn;connectBtn.hidden=!showConnect;}
   // Local midnight at the start of the first Monday to local midnight after the last Sunday, sent as UTC instants.
   function localMidnight(iso){var p=iso.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toISOString();}
   var RANGE="after="+encodeURIComponent(localMidnight(PLAN[0].start))+"&before="+encodeURIComponent(localMidnight(addDays(PLAN[PLAN.length-1].start,7)));
@@ -341,7 +714,7 @@ a.btn{color:inherit;text-decoration:none}
   }
   syncBtn.addEventListener("click",function(){load(true);});
 
-  renderStrip();renderAll();
+  renderCountdown();renderZones();renderAll();
 
   if(location.protocol==="http:"||location.protocol==="https:")load(false);
   else setSync("idle",PLAN_ONLY,false,false);

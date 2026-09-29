@@ -110,12 +110,13 @@ test("a different athlete can't take over the deployment", async () => {
   assert.equal(puts.length, 0);
 });
 
-test("activities returns 401 without a valid session", async () => {
-  params["/marathon/strava/athlete_id"] = "42";
-  params["/marathon/strava/refresh_token"] = "rt0";
+test("activities are public once connected and 401 before", async () => {
   const q = { after: "2026-09-27T14:00:00.000Z", before: "2026-11-01T13:59:59.000Z" };
   assert.equal((await handler(ev("/api/activities", q))).statusCode, 401);
-  assert.equal((await handler(ev("/api/activities", q, ["__Host-session=42.9999999999.forged"]))).statusCode, 401);
+  params["/marathon/strava/athlete_id"] = "42";
+  params["/marathon/strava/refresh_token"] = "rt0";
+  resetForTests();
+  assert.equal((await handler(ev("/api/activities", q))).statusCode, 200);
 });
 
 test("expired access token is refreshed and the rotated refresh token saved", async () => {

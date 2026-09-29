@@ -1,6 +1,6 @@
 # Tokyo lead-up
 
-A static training-plan page for the five weeks from 28 Sep to 1 Nov 2026. It shows weekly volume, the pace band, and each day's session against your Strava runs.
+A static training-plan page for the five weeks from 28 Sep to 1 Nov 2026. It shows today's session, a review of the latest run, weekly volume, the pace zones, each day's session against your Strava runs and a log of every run.
 
 It runs on AWS in `ap-southeast-2`. The page and its small Strava API share one CloudFront domain, so the browser only ever makes same-origin requests.
 
@@ -95,6 +95,8 @@ What happens behind the scenes:
 - It sets a signed, HttpOnly, Secure `__Host-session` cookie that lasts 60 days.
 - It locks the deployment to your Strava athlete ID. Anyone else who tries to connect gets a 403 and can't replace your token.
 
+You only connect once. After that `/api/activities` is public: anyone who opens the page sees your lead-up runs (name, type, date, distance and moving time) without connecting. No maps, heart rate or location are returned.
+
 ## Updating the page
 
 Edit `index.html` and run `./deploy.sh` again. Credentials that are already stored are left alone. Browsers may keep the old page for up to 5 minutes.
@@ -105,7 +107,7 @@ Edit `index.html` and run `./deploy.sh` again. Credentials that are already stor
 | --- | --- |
 | `GET /api/auth/start` | Sets a short-lived `state` cookie and redirects to Strava with `scope=activity:read_all`. |
 | `GET /api/auth/callback` | Checks `state` and scope, then exchanges the code for tokens. Stores the refresh token and athlete ID, sets the session cookie and redirects to `/`. |
-| `GET /api/activities?after=<iso>&before=<iso>` | Requires the session cookie and refreshes the access token when needed. Calls `GET /api/v3/athlete/activities?per_page=100`, paging if necessary. Returns `{activities:[{id,name,sport_type,start_local,summary:{distance,moving_time}}], fetched_at}`. Results are cached in the Lambda for 5 minutes and in the browser (`private, max-age=300`). |
+| `GET /api/activities?after=<iso>&before=<iso>` | Public once Strava is connected (401 `not_connected` before that). Refreshes the access token when needed. Calls `GET /api/v3/athlete/activities?per_page=100`, paging if necessary. Returns `{activities:[{id,name,sport_type,start_local,summary:{distance,moving_time}}], fetched_at}`. Results are cached in the Lambda for 5 minutes and in the browser (`private, max-age=300`). |
 
 Error responses are JSON of the form `{error, message}`, where `error` is one of:
 
@@ -120,7 +122,7 @@ Error responses are JSON of the form `{error, message}`, where `error` is one of
 - **"Connect Strava" keeps coming back:** the refresh token was revoked, for example from <https://www.strava.com/settings/apps>. Connect again.
 - **403 "linked to a different Strava athlete":** delete `/marathon/strava/athlete_id` and `/marathon/strava/refresh_token` in SSM, then connect with the right account.
 - **Strava says `redirect_uri invalid`:** the app's Authorization Callback Domain doesn't match the CloudFront domain.
-- **Log out everywhere:** replace `/marathon/session_secret` with a new random value. Every existing session cookie stops working within 5 minutes.
+- **Hide your runs:** revoke the app at <https://www.strava.com/settings/apps>, or delete `/marathon/strava/refresh_token` in SSM. The page falls back to the plan only until you connect again.
 
 ## Tear down
 

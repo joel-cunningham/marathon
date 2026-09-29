@@ -279,8 +279,9 @@ async function authCallback(event: LambdaFunctionURLEvent): Promise<Result> {
 async function activities(event: LambdaFunctionURLEvent): Promise<Result> {
   const cfg = await loadConfig();
   requireStravaApp(cfg);
-  const who = verifySession(cfg.sessionSecret!, readCookies(event)[SESSION_COOKIE]);
-  if (!who || who !== cfg.athleteId || !cfg.refreshToken) return json(401, { error: "not_connected", message: "Connect Strava to see your runs." });
+  // Public by choice: once the owner has connected, anyone with the page sees the
+  // lead-up runs (name, type, date, distance, moving time). No session needed.
+  if (!cfg.athleteId || !cfg.refreshToken) return json(401, { error: "not_connected", message: "Connect Strava to see your runs." });
 
   const { after, before } = parseRange(event.queryStringParameters);
   const key = `${after}:${before}`;
