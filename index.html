@@ -119,7 +119,7 @@ header{padding-top:18px;display:flex;flex-direction:column;gap:18px}
 .wks{display:flex;flex-direction:column;gap:6px}
 .wk{display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px}
 .wk.cur{background:var(--paper)}
-.wk .lab{width:62px;flex-shrink:0;display:flex;flex-direction:column;gap:2px}
+.wk .lab{width:72px;flex-shrink:0;display:flex;flex-direction:column;gap:2px}
 .wk .lab b{font:700 22px/1 var(--num)}
 .wk .lab span{font-size:12px;color:var(--muted)}
 .now{align-self:flex-start;font:700 10px var(--display);letter-spacing:.08em;padding:3px 6px 1px;border-radius:3px;background:var(--ink);color:var(--paper)}
@@ -129,6 +129,7 @@ header{padding-top:18px;display:flex;flex-direction:column;gap:18px}
 .ln .r{display:flex;align-items:center;gap:5px}
 .bar{height:9px;display:flex}
 .bar i{display:block;height:100%}
+.bar i.opt,.legend i.opt{opacity:.35}
 .ln .k{font:600 12px/1 var(--num);color:var(--muted)}
 .act{height:3px;background:var(--ink)}
 .scale{display:flex;gap:10px;padding:0 8px}
@@ -181,7 +182,7 @@ header{padding-top:18px;display:flex;flex-direction:column;gap:18px}
 .ow .t b{font:700 21px var(--num)}
 .ow .t span{font:600 19px var(--num)}
 .cells{display:flex;gap:4px;width:100%}
-.cells i{flex:1;height:34px;border-radius:3px;display:flex;align-items:center;justify-content:center;font:600 15px var(--num);font-style:normal}
+.cells i{flex:1;height:34px;border-radius:3px;display:flex;align-items:center;justify-content:center;font:600 13px var(--num);font-style:normal;letter-spacing:-.02em;white-space:nowrap}
 .cells i.off{border:1px dashed var(--line);color:var(--muted);font:600 11px var(--body)}
 .cells i.missed{opacity:.3}
 .ow .key{font-size:13px;color:var(--muted)}
@@ -285,12 +286,12 @@ footer{font-size:13px;color:var(--muted)}
         <div><h2 id="zH">Pace zones</h2><p class="sub">From a 4:35/km marathon. On hills, run the effort.</p></div>
         <div class="card zbox" id="zbox"></div>
       </section>
-      <footer class="o7">A run is <b>Hit</b> when you cover at least 90% of the distance and average within 5 s/km of the zone. On LT days only distance is checked, so look at your laps in Strava for the LT block. Wednesdays are PT.</footer>
+      <footer class="o7">Each run is a range. The low end is the session and the top is optional, so stop at the low end if your calf feels tight. A run is <b>Hit</b> when you cover at least 90% of the low end, stay within 10% of the top, and average within 5 s/km of the zone. On LT days only distance is checked, so look at your laps in Strava for the LT block. Wednesdays are PT.</footer>
     </div>
     <div class="right">
       <section class="card build o2" aria-labelledby="bH">
         <div class="bhead">
-          <div><h2 id="bH">Build to the block</h2><p class="sub">Four runs a week, one line each. Length is distance, colour is the zone. The black line under a run is what Strava logged.</p></div>
+          <div><h2 id="bH">Build to the block</h2><p class="sub">Four runs a week, one line each. Length is distance, colour is the zone, and the faded end is the optional extra. The black line under a run is what Strava logged.</p></div>
           <div class="stats" id="stats"></div>
         </div>
         <div class="wks" id="wks"></div>
@@ -320,14 +321,15 @@ footer{font-size:13px;color:var(--muted)}
   var BAND_ORDER=["rec","ga","long","mp","lt","str"];
   var RACE="2027-03-07", BLOCK="2026-11-02", LT_PACE=265;
 
-  function run(km,z,label,extra){return Object.assign({t:"run",km:km,z:z,label:label},extra||{});}
+  // km is the floor of the run and hi the ceiling. Stop at the floor if the calf complains.
+  function run(km,hi,z,label,extra){return Object.assign({t:"run",km:km,hi:hi,z:z,label:label},extra||{});}
   var REST={t:"rest"}, PT={t:"pt"};
   var PLAN=[
-    {start:"2026-09-28",days:[REST,run(10,"ga","General aerobic",{strides:true}),PT,run(10,"ga","General aerobic"),REST,run(6,"rec","Recovery"),run(17,"long","Long run")]},
-    {start:"2026-10-05",days:[REST,run(11,"lt","with 15 min at LT",{ltMin:15}),PT,run(11,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(18,"long","Long run")]},
-    {start:"2026-10-12",days:[REST,run(12,"ga","General aerobic",{strides:true}),PT,run(12,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(18,"long","Long run")]},
-    {start:"2026-10-19",days:[REST,run(13,"lt","with 20 min at LT",{ltMin:20}),PT,run(13,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(19,"long","Long run")]},
-    {start:"2026-10-26",days:[REST,run(13,"ga","General aerobic",{strides:true}),PT,run(14,"ga","General aerobic"),REST,run(7,"rec","Recovery"),run(18,"long","Long run")]}
+    {start:"2026-09-28",days:[REST,run(10,12,"ga","General aerobic",{strides:true}),PT,run(10,12,"ga","General aerobic"),REST,run(6,8,"rec","Recovery"),run(17,19,"long","Long run")]},
+    {start:"2026-10-05",days:[REST,run(11,13,"lt","with 15 min at LT",{ltMin:15}),PT,run(11,13,"ga","General aerobic"),REST,run(7,8,"rec","Recovery"),run(18,20,"long","Long run")]},
+    {start:"2026-10-12",days:[REST,run(12,13,"ga","General aerobic",{strides:true}),PT,run(12,14,"ga","General aerobic"),REST,run(7,8,"rec","Recovery"),run(18,20,"long","Long run")]},
+    {start:"2026-10-19",days:[REST,run(13,14,"lt","with 20 min at LT",{ltMin:20}),PT,run(13,14,"ga","General aerobic"),REST,run(7,9,"rec","Recovery"),run(19,21,"long","Long run")]},
+    {start:"2026-10-26",days:[REST,run(13,14,"ga","General aerobic",{strides:true}),PT,run(14,15,"ga","General aerobic"),REST,run(7,9,"rec","Recovery"),run(18,20,"long","Long run")]}
   ];
   var DN=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -341,6 +343,10 @@ footer{font-size:13px;color:var(--muted)}
   function pace(s){var m=Math.floor(s/60),r=Math.round(s-m*60);if(r===60){m++;r=0;}return m+":"+String(r).padStart(2,"0");}
   function band(z){return pace(z.lo)+"–"+pace(z.hi);}
   function plannedKm(w){return w.days.reduce(function(a,d){return a+(d.km||0);},0);}
+  function plannedHi(w){return w.days.reduce(function(a,d){return a+(d.hi||0);},0);}
+  function range(lo,hi){return lo===hi?String(lo):lo+"–"+hi;}
+  function kmRange(p){return range(p.km,p.hi);}
+  function weekRange(w){return range(plannedKm(w),plannedHi(w));}
   function ltKm(p){return p.ltMin*60/LT_PACE;}
   function h(tag,attrs){var el=document.createElement(tag);if(attrs)for(var k in attrs){if(k==="text")el.textContent=attrs[k];else if(k==="cls")el.className=attrs[k];else if(k==="style")el.style.cssText=attrs[k];else if(attrs[k]!==false&&attrs[k]!=null)el.setAttribute(k,attrs[k]);}for(var i=2;i<arguments.length;i++){var c=arguments[i];if(c==null)continue;el.appendChild(typeof c==="string"?document.createTextNode(c):c);}return el;}
   function zfill(z){return "background:"+ZONES[z].bg+";color:"+ZONES[z].fg;}
@@ -371,24 +377,25 @@ footer{font-size:13px;color:var(--muted)}
       return out;
     }
     out.done=true;
-    var reasons=[],distOk=dist>=p.km*0.9;
+    var reasons=[],distOk=dist>=p.km*0.9,over=dist>p.hi*1.1;
     if(!distOk)reasons.push((p.km-dist).toFixed(1)+" km short");
+    if(over)reasons.push((dist-p.hi).toFixed(1)+" km over the range");
     if(p.z!=="lt"&&out.pace){var z=ZONES[p.z];
       if(out.pace<z.lo-5)reasons.push(Math.round(z.lo-out.pace)+" s/km faster than the zone");
       else if(out.pace>z.hi+5)reasons.push(Math.round(out.pace-z.hi)+" s/km slower than the zone");}
     out.reasons=reasons;
-    out.st=reasons.length?{c:"part",t:distOk?"Off pace":"Short"}:{c:"hit",t:"Hit"};
+    out.st=reasons.length?{c:"part",t:!distOk?"Short":over?"Over":"Off pace"}:{c:"hit",t:"Hit"};
     return out;
   }
   function weekEvals(w){var ev=[],ak=0;for(var d=0;d<7;d++){var e=evalDay(w.days[d],addDays(w.start,d));ev.push(e);ak+=e.dist||0;}return {ev:ev,ak:ak};}
 
-  function title(p){return p.t==="rest"?"Rest":p.t==="pt"?"PT":p.km+" km "+p.label;}
+  function title(p){return p.t==="rest"?"Rest":p.t==="pt"?"PT":kmRange(p)+" km "+p.label;}
   function target(p){
     if(p.t!=="run")return null;var z=ZONES[p.z];
     if(p.z==="lt")return p.ltMin+" min at "+band(ZONES.lt)+", the rest at "+band(ZONES.ga);
     return band(z)+"/km"+(p.strides?" · strides "+band(ZONES.str):"");
   }
-  function short(p){return p.t==="rest"?"Rest":p.t==="pt"?"PT":p.km+" km "+ZONES[p.z].short;}
+  function short(p){return p.t==="rest"?"Rest":p.t==="pt"?"PT":kmRange(p)+" km "+ZONES[p.z].short;}
 
   // ---------- header ----------
   function renderCountdown(){
@@ -500,27 +507,30 @@ footer{font-size:13px;color:var(--muted)}
   }
 
   // ---------- build chart ----------
-  var MAXKM=Math.max.apply(null,PLAN.map(function(w){return Math.max.apply(null,w.days.map(function(d){return d.km||0;}));}));
-  function frac(k){return "calc((100% - 26px) * "+(Math.min(k,MAXKM*1.25)/MAXKM).toFixed(4)+")";}
+  var MAXKM=Math.max.apply(null,PLAN.map(function(w){return Math.max.apply(null,w.days.map(function(d){return d.hi||0;}));}));
+  function frac(k){return "calc((100% - 40px) * "+(Math.min(k,MAXKM*1.25)/MAXKM).toFixed(4)+")";}
   function renderBuild(){
-    var total=PLAN.reduce(function(a,w){return a+plannedKm(w);},0),longest=null,ran=0;
-    PLAN.forEach(function(w){w.days.forEach(function(d,i){if(d.km&&(!longest||d.km>longest.km))longest={km:d.km,iso:addDays(w.start,i)};});ran+=weekEvals(w).ak;});
+    var total=PLAN.reduce(function(a,w){return a+plannedKm(w);},0),totalHi=PLAN.reduce(function(a,w){return a+plannedHi(w);},0),longest=null,ran=0;
+    PLAN.forEach(function(w){w.days.forEach(function(d,i){if(d.hi&&(!longest||d.hi>longest.p.hi))longest={p:d,iso:addDays(w.start,i)};});ran+=weekEvals(w).ak;});
     var stats=document.getElementById("stats");stats.textContent="";
-    stats.appendChild(h("div",{cls:"stat"},h("b",{text:hasData?Math.round(ran)+" / "+total+" km":total+" km"}),h("span",{text:hasData?"run of the lead-up":"in the five lead-up weeks"})));
-    stats.appendChild(h("div",{cls:"stat"},h("b",{text:longest.km+" km"}),h("span",{text:"longest run, "+dow(longest.iso)+" "+dmy(longest.iso)})));
+    stats.appendChild(h("div",{cls:"stat"},h("b",{text:(hasData?Math.round(ran)+" / ":"")+range(total,totalHi)+" km"}),h("span",{text:hasData?"run of the lead-up":"in the five lead-up weeks"})));
+    stats.appendChild(h("div",{cls:"stat"},h("b",{text:kmRange(longest.p)+" km"}),h("span",{text:"longest run, "+dow(longest.iso)+" "+dmy(longest.iso)})));
 
     var root=document.getElementById("wks");root.textContent="";var cur=currentWeekIndex();
     PLAN.forEach(function(w,i){
       var pk=plannedKm(w),we=weekEvals(w),isCur=i===cur&&TODAY>=PLAN[0].start&&TODAY<=LAST;
-      var lab=h("div",{cls:"lab"},h("b",{text:(hasData&&we.ak>0?Math.round(we.ak)+"/":"")+pk}),h("span",{text:dmy(w.start)}),isCur?h("span",{cls:"now",text:"NOW"}):null);
+      var ran=hasData&&we.ak>0;
+      var lab=h("div",{cls:"lab"},h("b",{text:ran?String(Math.round(we.ak)):weekRange(w)}),h("span",{text:(ran?"of "+weekRange(w)+" · ":"")+dmy(w.start)}),isCur?h("span",{cls:"now",text:"NOW"}):null);
       var lines=h("div",{cls:"lines"});
       [5,10,15].forEach(function(k){if(k<MAXKM)lines.appendChild(h("i",{cls:"gl",style:"left:"+frac(k)}));});
       w.days.forEach(function(p,d){
-        if(p.t!=="run")return;var e=we.ev[d],bar=h("div",{cls:"bar",style:"width:"+frac(p.km)});
+        if(p.t!=="run")return;var e=we.ev[d],bar=h("div",{cls:"bar",style:"width:"+frac(p.hi)});
         if(p.z==="lt"){var lk=ltKm(p);bar.appendChild(h("i",{style:"flex:2 1 0;background:"+ZONES.ga.bg}));bar.appendChild(h("i",{style:"flex:"+lk.toFixed(2)+" 1 0;background:"+ZONES.lt.bg}));bar.appendChild(h("i",{style:"flex:"+(p.km-2-lk).toFixed(2)+" 1 0;background:"+ZONES.ga.bg}));}
-        else{bar.appendChild(h("i",{style:"flex:1 1 0;background:"+ZONES[p.z].bg}));if(p.strides)bar.appendChild(h("i",{style:"width:6px;background:"+ZONES.str.bg}));}
+        else bar.appendChild(h("i",{style:"flex:"+p.km+" 1 0;background:"+ZONES[p.z].bg}));
+        if(p.hi>p.km)bar.appendChild(h("i",{cls:"opt",style:"flex:"+(p.hi-p.km)+" 1 0;background:"+ZONES[p.z==="lt"?"ga":p.z].bg}));
+        if(p.strides)bar.appendChild(h("i",{style:"width:6px;background:"+ZONES.str.bg}));
         if(e.missed)bar.style.opacity=".3";
-        var ln=h("div",{cls:"ln"},h("div",{cls:"r"},bar,h("span",{cls:"k",text:String(p.km)})));
+        var ln=h("div",{cls:"ln"},h("div",{cls:"r"},bar,h("span",{cls:"k",text:kmRange(p)})));
         if(e.done)ln.appendChild(h("div",{cls:"act",style:"width:"+frac(e.dist),title:e.dist.toFixed(1)+" km logged"}));
         lines.appendChild(ln);
       });
@@ -531,6 +541,7 @@ footer{font-size:13px;color:var(--muted)}
 
     var lg=document.getElementById("legend");lg.textContent="";
     [["ga","General aerobic"],["lt","LT"],["rec","Recovery"],["long","Long"],["str","Strides"]].forEach(function(x){lg.appendChild(h("span",null,h("i",{style:"background:"+ZONES[x[0]].bg+(x[0]==="str"?";width:6px":"")}),x[1]));});
+    lg.appendChild(h("span",null,h("i",{cls:"opt",style:"background:"+ZONES.ga.bg}),"Optional extra"));
     if(hasData)lg.appendChild(h("span",null,h("i",{style:"height:3px;background:var(--ink)"}),"Logged"));
 
     var weeks=Math.ceil((daysBetween(PLAN[0].start,RACE)+1)/7),lead=PLAN.length/weeks*100;
@@ -567,7 +578,7 @@ footer{font-size:13px;color:var(--muted)}
   function renderWeeks(){
     var cur=currentWeekIndex(),w=PLAN[cur],we=weekEvals(w);
     document.getElementById("wH").textContent=(TODAY>=w.start&&TODAY<=addDays(w.start,6)?"This week":"Week "+(cur+1))+" · "+dmy(w.start);
-    document.getElementById("weekKm").textContent=(hasData?Math.round(we.ak)+" / ":"")+plannedKm(w)+" km";
+    document.getElementById("weekKm").textContent=(hasData?Math.round(we.ak)+" / ":"")+weekRange(w)+" km";
     var tw=document.getElementById("thisWeek");tw.textContent="";
     w.days.forEach(function(p,d){tw.appendChild(dayRow(p,addDays(w.start,d),we.ev[d]));});
 
@@ -575,15 +586,15 @@ footer{font-size:13px;color:var(--muted)}
     var pastWeeks=[];
     PLAN.forEach(function(w,i){
       if(i===cur)return;
-      var pk=plannedKm(w),e=weekEvals(w),id="wk"+i,isOpen=!!open[i];
+      var e=weekEvals(w),id="wk"+i,isOpen=!!open[i];
       var cells=h("span",{cls:"cells"});
       w.days.forEach(function(p,d){
-        cells.appendChild(p.t==="run"?h("i",{cls:e.ev[d].missed?"missed":"",style:zfill(p.z),text:String(p.km)}):h("i",{cls:"off",text:p.t==="pt"?"PT":""}));
+        cells.appendChild(p.t==="run"?h("i",{cls:e.ev[d].missed?"missed":"",style:zfill(p.z),text:kmRange(p)}):h("i",{cls:"off",text:p.t==="pt"?"PT":""}));
       });
       var tue=w.days[1];
-      var key=(tue.z==="lt"?tue.ltMin+" min LT Tuesday":"Strides Tuesday")+" · long run "+w.days[6].km+" km";
+      var key=(tue.z==="lt"?tue.ltMin+" min LT Tuesday":"Strides Tuesday")+" · long run "+kmRange(w.days[6])+" km";
       var head=h("button",{cls:"whead","aria-expanded":String(isOpen),"aria-controls":id},
-        h("span",{cls:"t"},h("b",{text:"Week "+(i+1)+" · "+dmy(w.start)}),h("span",{text:(hasData&&e.ak>0?Math.round(e.ak)+" / ":"")+pk+" km"})),
+        h("span",{cls:"t"},h("b",{text:"Week "+(i+1)+" · "+dmy(w.start)}),h("span",{text:(hasData&&e.ak>0?Math.round(e.ak)+" / ":"")+weekRange(w)+" km"})),
         cells,h("span",{cls:"key",text:key}));
       var list=h("div",{cls:"dl",id:id});list.hidden=!isOpen;
       w.days.forEach(function(p,d){list.appendChild(dayRow(p,addDays(w.start,d),e.ev[d]));});
@@ -612,17 +623,17 @@ footer{font-size:13px;color:var(--muted)}
   function renderRuns(){
     var body=document.getElementById("rbody"),empty=document.getElementById("rempty"),stats=document.getElementById("rstats");
     body.textContent="";stats.textContent="";
-    var rows=[],plannedKm=0,ranKm=0,time=0,due=0,hits=0,count=0;
+    var rows=[],planLo=0,planHi=0,ranKm=0,time=0,due=0,hits=0,count=0;
     for(var d=PLAN[0].start;d<=LAST&&d<=TODAY;d=addDays(d,1)){
       var p=planFor(d),e=evalDay(p,d);
-      if(p.t==="run"&&(d<TODAY||e.done)){plannedKm+=p.km;due++;if(e.st&&e.st.c==="hit")hits++;}
+      if(p.t==="run"&&(d<TODAY||e.done)){planLo+=p.km;planHi+=p.hi;due++;if(e.st&&e.st.c==="hit")hits++;}
       if(e.runs.length){ranKm+=e.dist;time+=e.time;count+=e.runs.length;}
       if(e.runs.length||(p.t==="run"&&d<TODAY))rows.unshift({iso:d,p:p,e:e});
     }
     document.getElementById("runCount").textContent=hasData&&count?String(count):"";
     function stat(v,l){stats.appendChild(h("div",{cls:"stat"},h("b",{text:v}),h("span",{text:l})));}
     stat(hasData?String(count):"–","runs logged");
-    stat(hasData?Math.round(ranKm)+" / "+plannedKm+" km":"–","run vs planned to date");
+    stat(hasData?Math.round(ranKm)+" / "+range(planLo,planHi)+" km":"–","run vs planned to date");
     stat(hasData&&due?hits+" of "+due:"–","planned runs hit");
     stat(hasData&&ranKm?pace(time/ranKm)+"/km":"–","average pace");
     empty.hidden=hasData&&rows.length>0;
