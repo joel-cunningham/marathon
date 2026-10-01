@@ -286,12 +286,12 @@ footer{font-size:13px;color:var(--muted)}
         <div><h2 id="zH">Pace zones</h2><p class="sub">From a 4:35/km marathon. On hills, run the effort.</p></div>
         <div class="card zbox" id="zbox"></div>
       </section>
-      <footer class="o7">Each run is a range. The low end is the session and the top is optional, so stop at the low end if your calf feels tight. A run is <b>Hit</b> when you cover at least 90% of the low end, stay within 10% of the top, and average within 5 s/km of the zone. On LT days only distance is checked, so look at your laps in Strava for the LT block. Wednesdays are PT.</footer>
+      <footer class="o7">Each run is a range. The low end is the session and the top is optional, so stop at the low end if your calf feels tight. A run is <b>Hit</b> when you cover at least 90% of the low end, stay within 10% of the top, and average within 5 s/km of the zone. On LT and race days only distance is checked, so look at your laps in Strava for the LT block. Wednesdays are PT.</footer>
     </div>
     <div class="right">
       <section class="card build o2" aria-labelledby="bH">
         <div class="bhead">
-          <div><h2 id="bH">Build to the block</h2><p class="sub">Four runs a week, one line each. Length is distance, colour is the zone, and the faded end is the optional extra. The black line under a run is what Strava logged.</p></div>
+          <div><h2 id="bH">Build to the block</h2><p class="sub">One line per run. Length is distance, colour is the zone, and the faded end is the optional extra. The black line under a run is what Strava logged.</p></div>
           <div class="stats" id="stats"></div>
         </div>
         <div class="wks" id="wks"></div>
@@ -316,17 +316,19 @@ footer{font-size:13px;color:var(--muted)}
     long:{name:"Long",short:"LONG",lo:305,hi:330,bg:"var(--z-long)",fg:"#111"},
     mp:{name:"Marathon pace",short:"MP",lo:270,hi:280,bg:"var(--z-mp)",fg:"#111"},
     lt:{name:"Lactate threshold",short:"LT",lo:260,hi:270,bg:"var(--z-lt)",fg:"#fff"},
-    str:{name:"Strides",short:"STR",lo:230,hi:240,bg:"var(--z-str)",fg:"#111"}
+    str:{name:"Strides",short:"STR",lo:230,hi:240,bg:"var(--z-str)",fg:"#111"},
+    race:{name:"Race",short:"RACE",lo:245,hi:265,bg:"var(--ink)",fg:"var(--paper)"}
   };
   var BAND_ORDER=["rec","ga","long","mp","lt","str"];
   var RACE="2027-03-07", BLOCK="2026-11-02", LT_PACE=265;
 
   // km is the floor of the run and hi the ceiling. Stop at the floor if the calf complains.
   function run(km,hi,z,label,extra){return Object.assign({t:"run",km:km,hi:hi,z:z,label:label},extra||{});}
-  var REST={t:"rest"}, PT={t:"pt"};
+  var REST={t:"rest"}, PT={t:"pt"}, TRAVEL={t:"rest",note:"Travel"};
   var PLAN=[
-    {start:"2026-09-28",days:[REST,run(10,12,"ga","General aerobic",{strides:true}),PT,run(10,12,"ga","General aerobic"),REST,run(6,8,"rec","Recovery"),run(17,19,"long","Long run")]},
-    {start:"2026-10-05",days:[REST,run(11,13,"lt","with 15 min at LT",{ltMin:15}),PT,run(11,13,"ga","General aerobic"),REST,run(7,8,"rec","Recovery"),run(18,20,"long","Long run")]},
+    // Sat 3 Oct is the Striders 10K plus parkrun, Tue 6 and Sun 11 Oct are travel days.
+    {start:"2026-09-28",days:[REST,run(10,12,"ga","General aerobic",{strides:true}),PT,run(8,10,"ga","General aerobic",{strides:true}),REST,run(17,18,"race","10K race + parkrun",{parkrun:true}),run(10,14,"ga","Easy, the day after the race")]},
+    {start:"2026-10-05",days:[run(10,12,"ga","General aerobic"),TRAVEL,PT,run(11,13,"lt","with 15 min at LT",{ltMin:15}),run(6,8,"rec","Recovery"),run(18,20,"long","Long run"),TRAVEL]},
     {start:"2026-10-12",days:[REST,run(12,13,"ga","General aerobic",{strides:true}),PT,run(12,14,"ga","General aerobic"),REST,run(7,8,"rec","Recovery"),run(18,20,"long","Long run")]},
     {start:"2026-10-19",days:[REST,run(13,14,"lt","with 20 min at LT",{ltMin:20}),PT,run(13,14,"ga","General aerobic"),REST,run(7,9,"rec","Recovery"),run(19,21,"long","Long run")]},
     {start:"2026-10-26",days:[REST,run(13,14,"ga","General aerobic",{strides:true}),PT,run(14,15,"ga","General aerobic"),REST,run(7,9,"rec","Recovery"),run(18,20,"long","Long run")]}
@@ -380,7 +382,7 @@ footer{font-size:13px;color:var(--muted)}
     var reasons=[],distOk=dist>=p.km*0.9,over=dist>p.hi*1.1;
     if(!distOk)reasons.push((p.km-dist).toFixed(1)+" km short");
     if(over)reasons.push((dist-p.hi).toFixed(1)+" km over the range");
-    if(p.z!=="lt"&&out.pace){var z=ZONES[p.z];
+    if(p.z!=="lt"&&p.z!=="race"&&out.pace){var z=ZONES[p.z];
       if(out.pace<z.lo-5)reasons.push(Math.round(z.lo-out.pace)+" s/km faster than the zone");
       else if(out.pace>z.hi+5)reasons.push(Math.round(out.pace-z.hi)+" s/km slower than the zone");}
     out.reasons=reasons;
@@ -389,13 +391,14 @@ footer{font-size:13px;color:var(--muted)}
   }
   function weekEvals(w){var ev=[],ak=0;for(var d=0;d<7;d++){var e=evalDay(w.days[d],addDays(w.start,d));ev.push(e);ak+=e.dist||0;}return {ev:ev,ak:ak};}
 
-  function title(p){return p.t==="rest"?"Rest":p.t==="pt"?"PT":kmRange(p)+" km "+p.label;}
+  function title(p){return p.t==="rest"?(p.note||"Rest"):p.t==="pt"?"PT":kmRange(p)+" km "+p.label;}
   function target(p){
     if(p.t!=="run")return null;var z=ZONES[p.z];
     if(p.z==="lt")return p.ltMin+" min at "+band(ZONES.lt)+", the rest at "+band(ZONES.ga);
+    if(p.z==="race")return "2–3 km warm-up, race the 10K, then parkrun 15 min later at "+band(ZONES.long)+"/km. Steady, not a second race.";
     return band(z)+"/km"+(p.strides?" · strides "+band(ZONES.str):"");
   }
-  function short(p){return p.t==="rest"?"Rest":p.t==="pt"?"PT":kmRange(p)+" km "+ZONES[p.z].short;}
+  function short(p){return p.t==="rest"?(p.note||"Rest"):p.t==="pt"?"PT":kmRange(p)+" km "+ZONES[p.z].short;}
 
   // ---------- header ----------
   function renderCountdown(){
@@ -405,7 +408,7 @@ footer{font-size:13px;color:var(--muted)}
   }
 
   // Tue across, Thu up and down, Sat and Sun on the diagonals.
-  var ANG={1:0,3:90,5:45,6:-45}, SHIFT={1:0,3:7,5:-7,6:12};
+  var ANG={0:22,1:0,3:90,4:-68,5:45,6:-45}, SHIFT={0:-12,1:0,3:7,4:4,5:-7,6:12};
   function renderEmblem(){
     var svg=document.getElementById("emblem"),NS="http://www.w3.org/2000/svg";
     while(svg.childNodes.length>1)svg.removeChild(svg.lastChild);
@@ -439,6 +442,7 @@ footer{font-size:13px;color:var(--muted)}
   function chipsFor(p){
     var chips=h("div",{cls:"chips"});
     if(p.z==="lt"){chips.appendChild(h("span",{cls:"chip",style:zfill("lt")},band(ZONES.lt),h("small",{text:p.ltMin+" min LT"})));chips.appendChild(h("span",{cls:"chip",style:zfill("ga")},band(ZONES.ga),h("small",{text:"the rest"})));}
+    else if(p.z==="race"){chips.appendChild(h("span",{cls:"chip",style:zfill("race")},"10K",h("small",{text:"race"})));chips.appendChild(h("span",{cls:"chip",style:zfill("long")},band(ZONES.long),h("small",{text:"parkrun"})));}
     else{chips.appendChild(h("span",{cls:"chip",style:zfill(p.z)},band(ZONES[p.z]),h("small",{text:"/km"})));
       if(p.strides)chips.appendChild(h("span",{cls:"chip",style:zfill("str")},band(ZONES.str),h("small",{text:"strides"})));}
     return chips;
@@ -475,6 +479,7 @@ footer{font-size:13px;color:var(--muted)}
     b.appendChild(h("div",{cls:"mh"},h("span",{cls:"lbl",text:lbl}),n.iso!==tom&&tp?h("span",{cls:"sub",text:"Tomorrow: "+title(tp)}):null));
     b.appendChild(h("div",{cls:"mt",text:title(n.p)}));
     if(n.p.strides)b.appendChild(h("div",{cls:"why",text:"Finish with 6 × 100 m strides"}));
+    if(n.p.parkrun)b.appendChild(h("div",{cls:"why",text:target(n.p)}));
     b.appendChild(chipsFor(n.p));
     return b;
   }
@@ -494,11 +499,12 @@ footer{font-size:13px;color:var(--muted)}
     }
     var wi=currentWeekIndex(),e=evalDay(p,TODAY);
     inner.appendChild(h("div",{cls:"row"},tag,h("span",{cls:"sub",text:"Week "+(wi+1)+" of "+PLAN.length})));
-    inner.appendChild(h("h3",{text:p.t==="rest"?"Rest day":p.t==="pt"?"PT":title(p)}));
+    inner.appendChild(h("h3",{text:p.t==="rest"?(p.note?p.note+" day":"Rest day"):p.t==="pt"?"PT":title(p)}));
     if(p.t==="run"&&!e.done){
       if(p.strides)inner.appendChild(h("p",{cls:"note",text:"Finish with 6 × 100 m strides"}));
+      if(p.parkrun)inner.appendChild(h("p",{cls:"note",text:target(p)}));
       inner.appendChild(chipsFor(p));
-    } else if(p.t!=="run")inner.appendChild(h("p",{cls:"note muted",text:p.t==="pt"?"PT session. No run today.":"No run today. Recover."}));
+    } else if(p.t!=="run")inner.appendChild(h("p",{cls:"note muted",text:p.t==="pt"?"PT session. No run today.":p.note?"Travelling. No run today.":"No run today. Recover."}));
     el.appendChild(inner);
     // Today's run once logged, otherwise the most recent one; then what's next.
     if(e.runs.length)el.appendChild(reviewBlock({iso:TODAY,p:p,e:e},p.t!=="run"));
@@ -540,7 +546,7 @@ footer{font-size:13px;color:var(--muted)}
     root.appendChild(h("div",{cls:"scale"},h("div",{cls:"sp"}),ax));
 
     var lg=document.getElementById("legend");lg.textContent="";
-    [["ga","General aerobic"],["lt","LT"],["rec","Recovery"],["long","Long"],["str","Strides"]].forEach(function(x){lg.appendChild(h("span",null,h("i",{style:"background:"+ZONES[x[0]].bg+(x[0]==="str"?";width:6px":"")}),x[1]));});
+    [["ga","General aerobic"],["lt","LT"],["rec","Recovery"],["long","Long"],["race","Race"],["str","Strides"]].forEach(function(x){lg.appendChild(h("span",null,h("i",{style:"background:"+ZONES[x[0]].bg+(x[0]==="str"?";width:6px":"")}),x[1]));});
     lg.appendChild(h("span",null,h("i",{cls:"opt",style:"background:"+ZONES.ga.bg}),"Optional extra"));
     if(hasData)lg.appendChild(h("span",null,h("i",{style:"height:3px;background:var(--ink)"}),"Logged"));
 
@@ -589,10 +595,16 @@ footer{font-size:13px;color:var(--muted)}
       var e=weekEvals(w),id="wk"+i,isOpen=!!open[i];
       var cells=h("span",{cls:"cells"});
       w.days.forEach(function(p,d){
-        cells.appendChild(p.t==="run"?h("i",{cls:e.ev[d].missed?"missed":"",style:zfill(p.z),text:kmRange(p)}):h("i",{cls:"off",text:p.t==="pt"?"PT":""}));
+        cells.appendChild(p.t==="run"?h("i",{cls:e.ev[d].missed?"missed":"",style:zfill(p.z),text:kmRange(p)}):h("i",{cls:"off",text:p.t==="pt"?"PT":p.note||""}));
       });
-      var tue=w.days[1];
-      var key=(tue.z==="lt"?tue.ltMin+" min LT Tuesday":"Strides Tuesday")+" · long run "+kmRange(w.days[6])+" km";
+      var key=[];
+      w.days.forEach(function(p,d){var dn=dow(addDays(w.start,d));
+        if(p.z==="race")key.push("Race "+dn);
+        else if(p.z==="lt")key.push(p.ltMin+" min LT "+dn);
+        else if(p.strides)key.push("strides "+dn);
+        else if(p.z==="long")key.push("long run "+kmRange(p)+" km "+dn);
+        else if(p.note)key.push(p.note.toLowerCase()+" "+dn);});
+      key=key.join(" · ");key=key.charAt(0).toUpperCase()+key.slice(1);
       var head=h("button",{cls:"whead","aria-expanded":String(isOpen),"aria-controls":id},
         h("span",{cls:"t"},h("b",{text:"Week "+(i+1)+" · "+dmy(w.start)}),h("span",{text:(hasData&&e.ak>0?Math.round(e.ak)+" / ":"")+weekRange(w)+" km"})),
         cells,h("span",{cls:"key",text:key}));
@@ -641,7 +653,7 @@ footer{font-size:13px;color:var(--muted)}
     if(!rows.length){empty.textContent="No runs logged in the lead-up yet.";return;}
     rows.forEach(function(r){
       var p=r.p,e=r.e,run=p.t==="run";
-      var sess=run?h("div",{cls:"t"},h("span",{cls:"z",style:zfill(p.z),text:ZONES[p.z].short}),title(p)):h("div",{cls:"t"},(p.t==="pt"?"PT day":"Rest day")+" · extra run");
+      var sess=run?h("div",{cls:"t"},h("span",{cls:"z",style:zfill(p.z),text:ZONES[p.z].short}),title(p)):h("div",{cls:"t"},(p.t==="pt"?"PT day":p.note?p.note+" day":"Rest day")+" · extra run");
       var why=e.reasons&&e.reasons.length?h("div",{cls:"why",text:e.reasons.join(", ")}):null;
       body.appendChild(h("tr",{cls:e.missed?"missed":""},
         h("td",{cls:"c-date"},dow(r.iso),h("small",{text:dmy(r.iso)})),
