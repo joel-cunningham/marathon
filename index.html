@@ -326,9 +326,9 @@ footer{font-size:13px;color:var(--muted)}
   function run(km,hi,z,label,extra){return Object.assign({t:"run",km:km,hi:hi,z:z,label:label},extra||{});}
   var REST={t:"rest"}, PT={t:"pt"}, TRAVEL={t:"rest",note:"Travel"};
   var PLAN=[
-    // Sat 3 Oct is the Striders 10K plus parkrun, Tue 6 and Sun 11 Oct are travel days.
+    // Sat 3 Oct is the Striders 10K plus parkrun, Tue 6 and Sun 11 Oct are travel days, no PT on Wed 7 Oct.
     {start:"2026-09-28",days:[REST,run(10,12,"ga","General aerobic",{strides:true}),PT,run(8,10,"ga","General aerobic",{strides:true}),REST,run(17,18,"race","10K race + parkrun",{parkrun:true}),run(10,14,"ga","Easy, the day after the race")]},
-    {start:"2026-10-05",days:[run(10,12,"ga","General aerobic"),TRAVEL,PT,run(11,13,"lt","with 15 min at LT",{ltMin:15}),run(6,8,"rec","Recovery"),run(18,20,"long","Long run"),TRAVEL]},
+    {start:"2026-10-05",days:[run(10,12,"ga","General aerobic"),TRAVEL,run(8,10,"ga","Easy, after travel"),run(11,13,"lt","with 15 min at LT",{ltMin:15}),REST,run(18,20,"long","Long run"),TRAVEL]},
     {start:"2026-10-12",days:[REST,run(12,13,"ga","General aerobic",{strides:true}),PT,run(12,14,"ga","General aerobic"),REST,run(7,8,"rec","Recovery"),run(18,20,"long","Long run")]},
     {start:"2026-10-19",days:[REST,run(13,14,"lt","with 20 min at LT",{ltMin:20}),PT,run(13,14,"ga","General aerobic"),REST,run(7,9,"rec","Recovery"),run(19,21,"long","Long run")]},
     {start:"2026-10-26",days:[REST,run(13,14,"ga","General aerobic",{strides:true}),PT,run(14,15,"ga","General aerobic"),REST,run(7,9,"rec","Recovery"),run(18,20,"long","Long run")]}
@@ -408,7 +408,7 @@ footer{font-size:13px;color:var(--muted)}
   }
 
   // Tue across, Thu up and down, Sat and Sun on the diagonals.
-  var ANG={0:22,1:0,3:90,4:-68,5:45,6:-45}, SHIFT={0:-12,1:0,3:7,4:4,5:-7,6:12};
+  var ANG={0:22,1:0,2:-22,3:90,4:-68,5:45,6:-45}, SHIFT={0:-12,1:0,2:-4,3:7,4:4,5:-7,6:12};
   function renderEmblem(){
     var svg=document.getElementById("emblem"),NS="http://www.w3.org/2000/svg";
     while(svg.childNodes.length>1)svg.removeChild(svg.lastChild);
