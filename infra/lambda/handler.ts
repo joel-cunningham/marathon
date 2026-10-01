@@ -186,6 +186,7 @@ type StravaActivity = {
   distance: number;
   moving_time: number;
   total_elevation_gain?: number;
+  timezone?: string; // e.g. "(GMT+10:00) Australia/Sydney"
 };
 
 export function mapActivity(a: StravaActivity) {
@@ -194,6 +195,7 @@ export function mapActivity(a: StravaActivity) {
     name: a.name,
     sport_type: a.sport_type,
     start_local: a.start_date_local,
+    tz: a.timezone?.split(" ").pop() ?? null,
     summary: { distance: a.distance, moving_time: a.moving_time, elevation_gain: a.total_elevation_gain ?? 0 },
   };
 }
@@ -281,7 +283,7 @@ async function activities(event: LambdaFunctionURLEvent): Promise<Result> {
   const cfg = await loadConfig();
   requireStravaApp(cfg);
   // Public by choice: once the owner has connected, anyone with the page sees the
-  // runs (name, type, date, distance, moving time, elevation gain). No session needed.
+  // runs (name, type, date, timezone, distance, moving time, elevation gain). No session needed.
   if (!cfg.athleteId || !cfg.refreshToken) return json(401, { error: "not_connected", message: "Connect Strava to see your runs." });
 
   const { after, before } = parseRange(event.queryStringParameters);

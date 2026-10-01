@@ -321,7 +321,7 @@ footer{font-size:13px;color:var(--muted)}
         <div><h2 id="zH">Pace zones</h2><p class="sub">From a 4:35/km marathon. On hills, run the effort.</p></div>
         <div class="card zbox" id="zbox"></div>
       </section>
-      <footer class="o7">Each run is a range. The low end is the session and the top is optional, so stop at the low end if your calf feels tight. A run is <b>Hit</b> when you cover at least 90% of the low end, stay within 10% of the top, and average within 5 s/km of the zone. On LT and race days only distance is checked, so look at your laps in Strava for the LT block. Wednesdays are PT.</footer>
+      <footer class="o7">Each run is a range. The low end is the session and the top is optional, so drop to the low end if anything feels off. A run is <b>Hit</b> when you cover at least 90% of the low end, stay within 10% of the top, and average within 5 s/km of the zone. On LT and race days only distance is checked, so look at your laps in Strava for the LT block. Wednesdays are PT.</footer>
     </div>
     <div class="right">
       <section class="card build o2" aria-labelledby="bH">
@@ -357,7 +357,7 @@ footer{font-size:13px;color:var(--muted)}
   var BAND_ORDER=["rec","ga","long","mp","lt","str"];
   var RACE="2027-03-07", BLOCK="2026-11-02", LT_PACE=265;
 
-  // km is the floor of the run and hi the ceiling. Stop at the floor if the calf complains.
+  // km is the floor of the run and hi the ceiling. Drop to the floor if anything feels off.
   function run(km,hi,z,label,extra){return Object.assign({t:"run",km:km,hi:hi,z:z,label:label},extra||{});}
   var REST={t:"rest"}, PT={t:"pt"}, TRAVEL={t:"rest",note:"Travel"};
   var PLAN=[
@@ -711,19 +711,50 @@ footer{font-size:13px;color:var(--muted)}
   //     a runner who has done the full marathon build.
   //  3. Today: the same, but the exponent grows by up to 0.042 when the last 6 weeks
   //     average under 90 km a week or the longest run is under 32 km.
-  // Tokyo is flat and usually cool, so there's no course or weather adjustment.
+  // Hot or humid Sydney runs are credited back to cool conditions first: temperature plus
+  // dew point in °F costs nothing up to 100 and about 10% at 180 (Open-Meteo hourly data
+  // for Sydney, averaged over the run). Tokyo in March is usually cool, so the forecast
+  // needs no weather adjustment of its own.
   var HIST_START="2025-12-21", PRED_START="2026-04-20";
   var LOOK=120, FRESH=21, DECAY=0.0004, CLIMB=1.5, BASE=1.06, MARA=4.2195;
-  var allActs=[], predS=null;
+  var allActs=[], predS=null, wx={}, wxLoaded=false;
+  var HEAT=[[100,0],[110,.5],[120,1],[130,2],[140,3],[150,4.5],[160,6],[170,8],[180,10]];
   function clamp01(x){return Math.max(0,Math.min(1,x));}
-  function equiv10k(a){
+  function heatPct(c,dp){
+    var f=c*9/5+32+dp*9/5+32;if(f<=HEAT[0][0])return 0;
+    for(var i=1;i<HEAT.length;i++){var a=HEAT[i-1],b=HEAT[i];if(f<=b[0])return a[1]+(f-a[0])/(b[0]-a[0])*(b[1]-a[1]);}
+    return 10;
+  }
+  // Average Sydney weather over the hours of a run, or null.
+  function runHeat(a){
+    if(a.tz!=="Australia/Sydney"||!a.start_local)return null;
+    var p=a.start_local.slice(0,13).split(/[-T]/).map(Number),n=Math.max(1,Math.round(((a.summary&&a.summary.moving_time)||0)/3600)),c=0,dp=0,k=0;
+    for(var i=0;i<n;i++){var w=wx[new Date(Date.UTC(p[0],p[1]-1,p[2],p[3]+i)).toISOString().slice(0,13)+":00"];if(w){c+=w[0];dp+=w[1];k++;}}
+    if(!k)return null;c/=k;dp/=k;
+    return {c:c,dp:dp,pct:heatPct(c,dp)};
+  }
+  function equiv10k(a,heat){
     var s=a.summary||{},d=s.distance||0,t=s.moving_time||0;
     if(!RUN_TYPES[a.sport_type]||d<3000||!t||t/d<0.17)return null; // under 3 km, or faster than 2:50/km (GPS glitch)
+    if(heat)t/=1+heat.pct/100;
     return t*Math.pow(10000/(d+CLIMB*(s.elevation_gain||0)),1.06);
+  }
+  function heatNote(h){return h&&h.pct>=0.3?" (credited "+h.pct.toFixed(1)+"% for "+Math.round(h.c)+"°C, dew point "+Math.round(h.dp)+"°C)":"";}
+  function loadWeather(){
+    if(wxLoaded)return;wxLoaded=true;
+    var end=TODAY<RACE?TODAY:RACE;
+    fetch("https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=-33.87&longitude=151.21&hourly=temperature_2m,dew_point_2m&timezone=Australia%2FSydney&start_date="+HIST_START+"&end_date="+end)
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(j){
+        var hr=j&&j.hourly;if(!hr)return;
+        hr.time.forEach(function(t,i){var c=hr.temperature_2m[i],dp=hr.dew_point_2m[i];if(c!=null&&dp!=null)wx[t]=[c,dp];});
+        if(hasData)renderPred();
+      },function(){wxLoaded=false;});
   }
   function predictSeries(){
     var runs=allActs.filter(function(a){return RUN_TYPES[a.sport_type]&&a.start_local;}).map(function(a){
-      return {a:a,iso:a.start_local.slice(0,10),km:((a.summary&&a.summary.distance)||0)/1000,e10:equiv10k(a)};
+      var heat=runHeat(a);
+      return {a:a,iso:a.start_local.slice(0,10),km:((a.summary&&a.summary.distance)||0)/1000,heat:heat,e10:equiv10k(a,heat)};
     });
     var end=TODAY<RACE?TODAY:RACE,out=[];
     for(var d=PRED_START;d<=end;d=addDays(d,1)){
@@ -759,7 +790,7 @@ footer{font-size:13px;color:var(--muted)}
     document.getElementById("predToday").textContent=gap<60?"Your volume is there: you could race this today.":"A marathon today would be about "+hm(now.today)+". That gap closes as your weekly volume and long runs build.";
     var why=document.getElementById("predWhy");why.textContent="";
     var b=now.best.r;
-    why.appendChild(h("li",null,"Built on ",h("b",{text:b.a.name||"a run"}),", "+dmy(b.iso)+": "+ms(now.best.v)+" flat-10K equivalent"));
+    why.appendChild(h("li",null,"Built on ",h("b",{text:b.a.name||"a run"}),", "+dmy(b.iso)+": "+ms(now.best.v)+" flat, cool-weather 10K equivalent"+heatNote(b.heat)));
     why.appendChild(h("li",null,"Last 6 weeks: ",h("b",{text:Math.round(now.weekly)+" km"})," a week, longest ",h("b",{text:now.longest.toFixed(1)+" km"})));
     drawPred();
   }
@@ -804,7 +835,7 @@ footer{font-size:13px;color:var(--muted)}
     var seen={};
     S.forEach(function(q){var r=q.best.r,id=r.a.id;if(seen[id]||r.iso<PRED_START)return;seen[id]=1;
       var c=el("circle",{cx:x(r.iso),cy:y(r.e10*Math.pow(MARA,BASE)),r:4.5,style:"fill:var(--z-lt);stroke:var(--surface);stroke-width:2"});
-      var tt=document.createElementNS(NS,"title");tt.textContent=(r.a.name||"Run")+", "+dmy(r.iso)+": "+ms(r.e10)+" flat-10K equivalent, a "+hm(r.e10*Math.pow(MARA,BASE))+" marathon";c.appendChild(tt);});
+      var tt=document.createElementNS(NS,"title");tt.textContent=(r.a.name||"Run")+", "+dmy(r.iso)+": "+ms(r.e10)+" flat, cool-weather 10K equivalent, a "+hm(r.e10*Math.pow(MARA,BASE))+" marathon"+heatNote(r.heat);c.appendChild(tt);});
     el("circle",{cx:x(last.iso),cy:y(last.engine),r:5,style:"fill:var(--ink);stroke:var(--surface);stroke-width:2"});
     // Scrub to read any day
     var guide=el("line",{y1:pt,y2:H-pb,style:"stroke:var(--ink);opacity:0"}),read=document.getElementById("predRead");
@@ -850,7 +881,7 @@ footer{font-size:13px;color:var(--muted)}
 
   function ingest(body){
     var list=(body&&body.activities)||[];
-    allActs=list;byDate={};
+    allActs=list;byDate={};loadWeather();
     list.forEach(function(a){var d=(a.start_local||"").slice(0,10);if(!d)return;(byDate[d]=byDate[d]||[]).push(a);});
     hasData=true;
     var t=body.fetched_at?new Date(body.fetched_at):new Date();
