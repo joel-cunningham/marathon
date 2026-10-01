@@ -86,14 +86,14 @@ test("callback stores refresh token + athlete, sets session, then activities wor
   assert.match(session, /HttpOnly; Secure; SameSite=Lax/);
 
   stravaActivities = [
-    { id: 7, name: "Easy", sport_type: "Run", start_date_local: "2026-09-29T06:10:00Z", distance: 10012.3, moving_time: 3300, extra: 1 },
+    { id: 7, name: "Easy", sport_type: "Run", start_date_local: "2026-09-29T06:10:00Z", distance: 10012.3, moving_time: 3300, total_elevation_gain: 42, extra: 1 },
   ];
   const cookie = decodeURIComponent(session.split(";")[0]);
   const q = { after: "2026-09-27T14:00:00.000Z", before: "2026-11-01T13:59:59.000Z" };
   const a = await handler(ev("/api/activities", q, [cookie]));
   assert.equal(a.statusCode, 200);
   assert.deepEqual(JSON.parse(String(a.body)).activities, [
-    { id: 7, name: "Easy", sport_type: "Run", start_local: "2026-09-29T06:10:00Z", summary: { distance: 10012.3, moving_time: 3300 } },
+    { id: 7, name: "Easy", sport_type: "Run", start_local: "2026-09-29T06:10:00Z", summary: { distance: 10012.3, moving_time: 3300, elevation_gain: 42 } },
   ]);
   assert.match(calls.at(-1)!, /after=1790517600&before=1793541599&per_page=100&page=1/);
 

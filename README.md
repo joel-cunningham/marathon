@@ -95,7 +95,7 @@ What happens behind the scenes:
 - It sets a signed, HttpOnly, Secure `__Host-session` cookie that lasts 60 days.
 - It locks the deployment to your Strava athlete ID. Anyone else who tries to connect gets a 403 and can't replace your token.
 
-You only connect once. After that `/api/activities` is public: anyone who opens the page sees your lead-up runs (name, type, date, distance and moving time) without connecting. No maps, heart rate or location are returned.
+You only connect once. After that `/api/activities` is public: anyone who opens the page sees your runs (name, type, date, distance, moving time and elevation gain) without connecting. No maps, heart rate or location are returned.
 
 ## Updating the page
 
@@ -107,7 +107,7 @@ Edit `index.html` and run `./deploy.sh` again. Credentials that are already stor
 | --- | --- |
 | `GET /api/auth/start` | Sets a short-lived `state` cookie and redirects to Strava with `scope=activity:read_all`. |
 | `GET /api/auth/callback` | Checks `state` and scope, then exchanges the code for tokens. Stores the refresh token and athlete ID, sets the session cookie and redirects to `/`. |
-| `GET /api/activities?after=<iso>&before=<iso>` | Public once Strava is connected (401 `not_connected` before that). Refreshes the access token when needed. Calls `GET /api/v3/athlete/activities?per_page=100`, paging if necessary. Returns `{activities:[{id,name,sport_type,start_local,summary:{distance,moving_time}}], fetched_at}`. Results are cached in the Lambda for 5 minutes and in the browser (`private, max-age=300`). |
+| `GET /api/activities?after=<iso>&before=<iso>` | Public once Strava is connected (401 `not_connected` before that). Refreshes the access token when needed. Calls `GET /api/v3/athlete/activities?per_page=100`, paging if necessary. Returns `{activities:[{id,name,sport_type,start_local,summary:{distance,moving_time,elevation_gain}}], fetched_at}`. The range can span up to about 15 months. Results are cached in the Lambda for 5 minutes and in the browser (`private, max-age=300`). |
 
 Error responses are JSON of the form `{error, message}`, where `error` is one of:
 

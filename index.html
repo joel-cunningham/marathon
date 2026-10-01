@@ -58,6 +58,27 @@ header{padding-top:18px;display:flex;flex-direction:column;gap:18px}
 .hero{display:flex;align-items:center;gap:18px}
 .emblem{flex-shrink:0;width:148px;height:148px;border-radius:50%;display:block}
 .emblem line{mix-blend-mode:var(--blend)}
+
+/* Tokyo forecast */
+.pred{margin-top:18px;padding:16px;display:grid;gap:14px}
+.pnum{display:flex;flex-direction:column;gap:6px;min-width:0}
+.pbig{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.pbig b{font:700 64px/.85 var(--num)}
+.delta{font:600 15px var(--num);padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
+.delta.up{color:var(--hit);border-color:currentColor}.delta.down{color:var(--miss);border-color:currentColor}
+.pwhy{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.pwhy b{color:var(--ink);font-weight:600}
+.pchart{min-width:0;display:flex;flex-direction:column;gap:6px}
+#predChart{width:100%;display:block;touch-action:pan-y}
+#predChart text{font:600 12px var(--num);fill:var(--muted)}
+#predChart .tg text{font-weight:700}
+.pkey{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
+.pkey span{display:inline-flex;align-items:center;gap:6px}
+.pkey i{display:inline-block;width:18px;border-top:2.5px solid var(--ink)}
+.pkey i.td{border-top:2px dashed var(--muted)}
+.pkey i.dt{width:8px;height:8px;border:0;border-radius:50%;background:var(--z-lt)}
+#predRead{min-height:1.5em;font-size:13px}
+@media (min-width:960px){.pred{grid-template-columns:300px 1fr;gap:28px;padding:22px 24px}.pbig b{font-size:88px}}
 .count{display:flex;flex-direction:column;gap:4px;min-width:0}
 .days{display:flex;align-items:baseline;gap:6px}
 .days b{font:700 72px/.8 var(--num)}
@@ -261,6 +282,20 @@ footer{font-size:13px;color:var(--muted)}
     </div>
     <p id="syncLine" class="muted" aria-live="polite"><span class="dot"></span><span id="syncText">Plan only</span></p>
   </header>
+
+  <section class="card pred" id="pred" aria-labelledby="predH" hidden>
+    <div class="pnum">
+      <h2 class="lbl" id="predH">Tokyo forecast</h2>
+      <div class="pbig"><b id="predTime">–</b><span class="delta" id="predDelta" hidden></span></div>
+      <p class="sub" id="predToday"></p>
+      <ul class="pwhy" id="predWhy"></ul>
+    </div>
+    <div class="pchart">
+      <svg id="predChart" role="img" aria-labelledby="predChartT"><title id="predChartT">Tokyo forecast over time</title></svg>
+      <div class="pkey"><span><i></i>Forecast, with the block done</span><span><i class="td"></i>If you raced a marathon that day</span><span><i class="dt"></i>Effort the forecast is built on</span></div>
+      <p class="sub" id="predRead" aria-live="polite"></p>
+    </div>
+  </section>
 
   <div class="tabs" role="tablist" aria-label="View">
     <button type="button" role="tab" id="tab-plan" aria-selected="true" aria-controls="panel-plan">Plan</button>
@@ -666,6 +701,125 @@ footer{font-size:13px;color:var(--muted)}
     });
   }
 
+  // ---------- Tokyo forecast ----------
+  // For every day since Boston:
+  //  1. Speed: the best run in the last 120 days, as a flat-10K equivalent. Each metre
+  //     climbed counts as 1.5 m of extra distance, then Riegel (exponent 1.06) scales it
+  //     to 10K. Efforts older than 3 weeks fade by 0.04% a day, so an old race hands
+  //     over gradually instead of dropping out all at once.
+  //  2. Forecast: that 10K scaled to the marathon with exponent 1.06, the figure for
+  //     a runner who has done the full marathon build.
+  //  3. Today: the same, but the exponent grows by up to 0.042 when the last 6 weeks
+  //     average under 90 km a week or the longest run is under 32 km.
+  // Tokyo is flat and usually cool, so there's no course or weather adjustment.
+  var HIST_START="2025-12-21", PRED_START="2026-04-20";
+  var LOOK=120, FRESH=21, DECAY=0.0004, CLIMB=1.5, BASE=1.06, MARA=4.2195;
+  var allActs=[], predS=null;
+  function clamp01(x){return Math.max(0,Math.min(1,x));}
+  function equiv10k(a){
+    var s=a.summary||{},d=s.distance||0,t=s.moving_time||0;
+    if(!RUN_TYPES[a.sport_type]||d<3000||!t||t/d<0.17)return null; // under 3 km, or faster than 2:50/km (GPS glitch)
+    return t*Math.pow(10000/(d+CLIMB*(s.elevation_gain||0)),1.06);
+  }
+  function predictSeries(){
+    var runs=allActs.filter(function(a){return RUN_TYPES[a.sport_type]&&a.start_local;}).map(function(a){
+      return {a:a,iso:a.start_local.slice(0,10),km:((a.summary&&a.summary.distance)||0)/1000,e10:equiv10k(a)};
+    });
+    var end=TODAY<RACE?TODAY:RACE,out=[];
+    for(var d=PRED_START;d<=end;d=addDays(d,1)){
+      var best=null,km=0,longest=0;
+      for(var i=0;i<runs.length;i++){
+        var r=runs[i],age=daysBetween(r.iso,d);if(age<0||age>=LOOK)continue;
+        if(age<42){km+=r.km;if(r.km>longest)longest=r.km;}
+        if(r.e10){var v=r.e10*(1+DECAY*Math.max(0,age-FRESH));if(!best||v<best.v)best={v:v,r:r};}
+      }
+      if(!best)continue;
+      var weekly=km/6,e=BASE+0.03*clamp01((90-weekly)/50)+0.012*clamp01((32-longest)/14);
+      out.push({iso:d,best:best,weekly:weekly,longest:longest,engine:best.v*Math.pow(MARA,BASE),today:best.v*Math.pow(MARA,e)});
+    }
+    return out;
+  }
+  function hm(s){var m=Math.round(s/60);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0");}
+  function hms(s){s=Math.round(s);return Math.floor(s/3600)+":"+String(Math.floor(s%3600/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+  function ms(s){s=Math.round(Math.abs(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+
+  function renderPred(){
+    var card=document.getElementById("pred");
+    predS=hasData?predictSeries():[];
+    if(!predS.length){card.hidden=true;return;}
+    card.hidden=false;
+    var now=predS[predS.length-1],ago=null,want=addDays(now.iso,-28);
+    for(var i=0;i<predS.length;i++)if(predS[i].iso===want)ago=predS[i];
+    document.getElementById("predTime").textContent=hm(now.engine);
+    var dl=document.getElementById("predDelta");
+    if(ago&&Math.abs(now.engine-ago.engine)>=10){var diff=now.engine-ago.engine;dl.hidden=false;dl.className="delta "+(diff<0?"up":"down");dl.textContent=(diff<0?"−":"+")+ms(diff)+" in 4 weeks";}
+    else if(ago){dl.hidden=false;dl.className="delta";dl.textContent="Level over 4 weeks";}
+    else dl.hidden=true;
+    var gap=now.today-now.engine;
+    document.getElementById("predToday").textContent=gap<60?"Your volume is there: you could race this today.":"A marathon today would be about "+hm(now.today)+". That gap closes as your weekly volume and long runs build.";
+    var why=document.getElementById("predWhy");why.textContent="";
+    var b=now.best.r;
+    why.appendChild(h("li",null,"Built on ",h("b",{text:b.a.name||"a run"}),", "+dmy(b.iso)+": "+ms(now.best.v)+" flat-10K equivalent"));
+    why.appendChild(h("li",null,"Last 6 weeks: ",h("b",{text:Math.round(now.weekly)+" km"})," a week, longest ",h("b",{text:now.longest.toFixed(1)+" km"})));
+    drawPred();
+  }
+
+  function drawPred(){
+    var svg=document.getElementById("predChart"),NS="http://www.w3.org/2000/svg",S=predS;
+    if(!S||!S.length)return;
+    while(svg.childNodes.length>1)svg.removeChild(svg.lastChild);
+    var W=Math.max(280,svg.clientWidth||svg.parentNode.clientWidth||600),H=W<560?210:240,pl=36,pr=40,pt=12,pb=22;
+    svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.setAttribute("height",H);
+    var span=daysBetween(PRED_START,RACE);
+    function x(iso){return pl+daysBetween(PRED_START,iso)/span*(W-pl-pr);}
+    var lo=Infinity,hi=-Infinity;S.forEach(function(p){lo=Math.min(lo,p.engine);hi=Math.max(hi,p.today);});
+    var y0=Math.floor(Math.min(lo,3*3600)/600)*600,y1=Math.ceil((Math.min(hi,lo+55*60)+120)/600)*600;
+    function y(t){return pt+(Math.min(t,y1)-y0)/(y1-y0)*(H-pt-pb);}
+    function el(tag,a,parent){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);(parent||svg).appendChild(e);return e;}
+    function txt(s,a,parent){var e=el("text",a,parent);e.textContent=s;return e;}
+    // Grid every 10 minutes
+    for(var t=y0;t<=y1;t+=600){el("line",{x1:pl,x2:W-pr,y1:y(t),y2:y(t),style:"stroke:var(--line2)"});txt(hm(t),{x:pl-6,y:y(t)+4,"text-anchor":"end"});}
+    // Targets
+    var tg=el("g",{"class":"tg"});
+    [[3*3600,"3:00","var(--z-lt)"],[3*3600+300,"3:05","var(--z-mp)"],[3*3600+600,"3:10","var(--z-ga)"]].forEach(function(g){
+      if(g[0]<y0||g[0]>y1)return;
+      el("line",{x1:pl,x2:W-pr,y1:y(g[0]),y2:y(g[0]),style:"stroke:"+g[2]+";stroke-dasharray:4 4;opacity:.8"},tg);
+      txt(g[1],{x:W-pr+6,y:y(g[0])+4,style:"fill:"+g[2]},tg);
+    });
+    // Months
+    var p=PRED_START.split("-").map(Number),step=W<560?2:1;
+    for(var k=1;;k+=step){var mo=new Date(Date.UTC(p[0],p[1]-1+k,1)).toISOString().slice(0,10);if(mo>RACE)break;
+      el("line",{x1:x(mo),x2:x(mo),y1:H-pb,y2:H-pb+4,style:"stroke:var(--line)"});txt(MON[Number(mo.slice(5,7))-1],{x:x(mo)+3,y:H-6});}
+    el("line",{x1:pl,x2:W-pr,y1:H-pb,y2:H-pb,style:"stroke:var(--line)"});
+    // Race day and today
+    el("line",{x1:x(RACE),x2:x(RACE),y1:pt,y2:H-pb,style:"stroke:var(--ink);stroke-width:2"});
+    txt("Tokyo",{x:x(RACE)-4,y:pt+10,"text-anchor":"end",style:"fill:var(--ink)"});
+    var last=S[S.length-1];
+    if(last.iso<RACE){el("line",{x1:x(last.iso),x2:x(last.iso),y1:pt,y2:H-pb,style:"stroke:var(--muted);stroke-dasharray:2 3"});}
+    // Lines
+    function path(key){return S.map(function(q,i){return (i?"L":"M")+x(q.iso).toFixed(1)+" "+y(q[key]).toFixed(1);}).join("");}
+    el("path",{d:path("today"),style:"fill:none;stroke:var(--muted);stroke-width:2;stroke-dasharray:5 4"});
+    el("path",{d:path("engine"),style:"fill:none;stroke:var(--ink);stroke-width:2.5;stroke-linejoin:round"});
+    // Every effort that anchors the forecast at some point, at the day it was run and its fresh value
+    var seen={};
+    S.forEach(function(q){var r=q.best.r,id=r.a.id;if(seen[id]||r.iso<PRED_START)return;seen[id]=1;
+      var c=el("circle",{cx:x(r.iso),cy:y(r.e10*Math.pow(MARA,BASE)),r:4.5,style:"fill:var(--z-lt);stroke:var(--surface);stroke-width:2"});
+      var tt=document.createElementNS(NS,"title");tt.textContent=(r.a.name||"Run")+", "+dmy(r.iso)+": "+ms(r.e10)+" flat-10K equivalent, a "+hm(r.e10*Math.pow(MARA,BASE))+" marathon";c.appendChild(tt);});
+    el("circle",{cx:x(last.iso),cy:y(last.engine),r:5,style:"fill:var(--ink);stroke:var(--surface);stroke-width:2"});
+    // Scrub to read any day
+    var guide=el("line",{y1:pt,y2:H-pb,style:"stroke:var(--ink);opacity:0"}),read=document.getElementById("predRead");
+    function show(i){var q=S[i];guide.setAttribute("x1",x(q.iso));guide.setAttribute("x2",x(q.iso));guide.style.opacity=".35";
+      read.textContent=dow(q.iso)+" "+dmy(q.iso)+": forecast "+hms(q.engine)+" · that day "+hm(q.today)+" · "+Math.round(q.weekly)+" km a week";}
+    function rest(){guide.style.opacity="0";read.textContent="Tap or hover the chart to read any day.";}
+    var hit=el("rect",{x:pl,y:pt,width:W-pl-pr,height:H-pt-pb,style:"fill:transparent"});
+    function move(ev){var r=svg.getBoundingClientRect(),px=(ev.clientX-r.left)*W/r.width,best=0,bd=Infinity;
+      S.forEach(function(q,i){var dd=Math.abs(x(q.iso)-px);if(dd<bd){bd=dd;best=i;}});show(best);}
+    hit.addEventListener("pointermove",move);hit.addEventListener("pointerdown",move);hit.addEventListener("pointerleave",rest);
+    rest();
+    document.getElementById("predChartT").textContent="Tokyo forecast from "+dmy(S[0].iso)+" to "+dmy(last.iso)+": now "+hm(last.engine)+", targets 3:00, 3:05 and 3:10.";
+  }
+  var rsz;window.addEventListener("resize",function(){clearTimeout(rsz);rsz=setTimeout(drawPred,150);});
+
   // ---------- tabs ----------
   var TABS=[document.getElementById("tab-plan"),document.getElementById("tab-runs")];
   function selectTab(t,focus){
@@ -682,23 +836,25 @@ footer{font-size:13px;color:var(--muted)}
   });
   if(location.hash==="#runs")selectTab(TABS[1]);
 
-  function renderAll(){renderEmblem();renderToday();renderBuild();renderWeeks();renderRuns();}
+  function renderAll(){renderPred();renderEmblem();renderToday();renderBuild();renderWeeks();renderRuns();}
 
   // Strava, through this site's own API (infra/lambda/handler.ts)
   var syncEl=document.getElementById("sync"),syncLine=document.getElementById("syncLine"),syncText=document.getElementById("syncText"),syncBtn=document.getElementById("syncBtn"),connectBtn=document.getElementById("connectBtn");
   function setSync(state,text,showBtn,showConnect){syncEl.dataset.state=state;syncLine.dataset.state=state;syncText.textContent=text;syncBtn.hidden=!showBtn;connectBtn.hidden=!showConnect;}
-  // Local midnight at the start of the first Monday to local midnight after the last Sunday, sent as UTC instants.
+  // From the forecast's history start to local midnight after the later of today and the lead-up's
+  // last Sunday (never past race day), sent as UTC instants.
   function localMidnight(iso){var p=iso.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toISOString();}
-  var RANGE="after="+encodeURIComponent(localMidnight(PLAN[0].start))+"&before="+encodeURIComponent(localMidnight(addDays(PLAN[PLAN.length-1].start,7)));
+  var RANGE_END=[addDays(TODAY,1),addDays(PLAN[PLAN.length-1].start,7)].sort()[1];if(RANGE_END>addDays(RACE,1))RANGE_END=addDays(RACE,1);
+  var RANGE="after="+encodeURIComponent(localMidnight(HIST_START))+"&before="+encodeURIComponent(localMidnight(RANGE_END));
   var PLAN_ONLY="Plan only. Strava sync isn't available here.";
 
   function ingest(body){
     var list=(body&&body.activities)||[];
-    byDate={};
+    allActs=list;byDate={};
     list.forEach(function(a){var d=(a.start_local||"").slice(0,10);if(!d)return;(byDate[d]=byDate[d]||[]).push(a);});
     hasData=true;
     var t=body.fetched_at?new Date(body.fetched_at):new Date();
-    setSync("ok","Strava synced at "+t.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+(list.length?", "+list.length+" activities":", no activities in the lead-up yet"),true,false);
+    setSync("ok","Strava synced at "+t.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+(function(){var n=list.filter(function(a){return (a.start_local||"")>=PLAN[0].start;}).length;return n?", "+n+" in the lead-up":", no activities in the lead-up yet";})(),true,false);
     renderAll();
   }
 
@@ -721,7 +877,7 @@ footer{font-size:13px;color:var(--muted)}
       .then(function(r){
         if(r.status===200&&r.body)return ingest(r.body);
         if(r.status===401){
-          byDate={};hasData=false;renderAll();
+          byDate={};allActs=[];hasData=false;renderAll();
           setSync("idle","Plan only. Connect Strava to see your runs against it.",false,true);
           return;
         }

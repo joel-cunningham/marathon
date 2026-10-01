@@ -33,7 +33,7 @@ const STATE_COOKIE = "__Host-oauth_state";
 const SESSION_TTL_S = 60 * 60 * 24 * 60; // 60 days
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const CONFIG_TTL_MS = 5 * 60 * 1000;
-const MAX_PAGES = 5; // 500 activities is far more than 5 weeks of training
+const MAX_PAGES = 5; // 500 activities covers the predictor's ~15 months of history
 
 // ---------- parameter store (replaceable in tests) ----------
 
@@ -185,6 +185,7 @@ type StravaActivity = {
   start_date_local: string;
   distance: number;
   moving_time: number;
+  total_elevation_gain?: number;
 };
 
 export function mapActivity(a: StravaActivity) {
@@ -193,7 +194,7 @@ export function mapActivity(a: StravaActivity) {
     name: a.name,
     sport_type: a.sport_type,
     start_local: a.start_date_local,
-    summary: { distance: a.distance, moving_time: a.moving_time },
+    summary: { distance: a.distance, moving_time: a.moving_time, elevation_gain: a.total_elevation_gain ?? 0 },
   };
 }
 
@@ -202,7 +203,7 @@ export function parseRange(q: Record<string, string | undefined> | undefined) {
   const before = Date.parse(q?.before ?? "");
   if (Number.isNaN(after) || Number.isNaN(before)) throw new HttpError(400, "bad_request", "after and before must be ISO 8601 date-times.");
   if (before <= after) throw new HttpError(400, "bad_request", "before must be later than after.");
-  if (before - after > 400 * 86400_000) throw new HttpError(400, "bad_request", "Range is limited to about a year.");
+  if (before - after > 460 * 86400_000) throw new HttpError(400, "bad_request", "Range is limited to about 15 months.");
   return { after: Math.floor(after / 1000), before: Math.ceil(before / 1000) };
 }
 
@@ -280,7 +281,7 @@ async function activities(event: LambdaFunctionURLEvent): Promise<Result> {
   const cfg = await loadConfig();
   requireStravaApp(cfg);
   // Public by choice: once the owner has connected, anyone with the page sees the
-  // lead-up runs (name, type, date, distance, moving time). No session needed.
+  // runs (name, type, date, distance, moving time, elevation gain). No session needed.
   if (!cfg.athleteId || !cfg.refreshToken) return json(401, { error: "not_connected", message: "Connect Strava to see your runs." });
 
   const { after, before } = parseRange(event.queryStringParameters);
